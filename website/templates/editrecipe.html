@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Recipe</title>
+    <title>Edit Recipe</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
     <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
+    <script src="{{ url_for('static', filename='js/csrf.js') }}" defer></script>
 </head>
 <body>
     <div class="container userhome">
@@ -124,54 +126,56 @@
                     <div class="image-container">
                         <label for="edit-image">Recipe Image:</label>
                         <input type="file" id="edit-image" name="recipe_image" accept="image/*" onchange="previewImage(event)">
-                        <img id="preview" src="" alt="Image Preview" style=" max-width: 200px; margin-top: 10px;">
+                        <img id="preview" src="{{ recipe['recipePic'] }}" alt="Image Preview" style="max-width: 200px; margin-top: 10px;">
                         
                         <!-- Dismiss, Archive, Save Change, Delete Buttons Below the Image -->
                         <div class="form-buttons">
                             <button type="button" class="dismiss" onclick="dismissPage()">Dismiss</button>
                             <button type="submit" class="save-change">Save Change</button>
                             <button type="button" id="recipeStatusButton" class="btn-archive" onclick="toggleRecipeArchive()">Archive</button>
-                            <button class="btn-delete" id="deleteButton" onclick="deleteRecipe()">Delete</button>
+                            <button type="button" class="btn-delete" id="deleteButton" onclick="deleteRecipe()">Delete</button>
                         </div>
                     </div>
             
                     <!-- Recipe Details Section -->
                     <div class="recipe-details">
-                        <span id="recipeId">#{{ recipe_id }}</span>
-                        <input type="text" id="edit-title" name="title" required>
+                        <span id="recipeId">#{{ recipe['recipeID'] }}</span>
+                        <input type="text" id="edit-title" name="title" value="{{ recipe['recipeTitle'] | e }}" required>
                         
                         <div class="recipe-form-container" style="display: flex; gap: 10px;">
                             <!-- Description & Ingredients in a Column -->
                             <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
-                                <textarea id="edit-description" name="description" placeholder="Description (max 100 words)" maxlength="100" required style="flex-grow: 1; min-height: 120px;"></textarea>
-                                <textarea id="edit-ingredients" name="ingredients" placeholder="Ingredients" required style="flex-grow: 1; min-height: 120px;"></textarea>
+                                <textarea id="edit-description" name="description" placeholder="Description (max 100 words)" maxlength="1000" required style="flex-grow: 1; min-height: 120px;">{{ recipe['recipeDescription'] | e }}</textarea>
+                                <textarea id="edit-ingredients" name="ingredients" placeholder="Ingredients" required style="flex-grow: 1; min-height: 120px;">{{ recipe['recipeIngredients'] | e }}</textarea>
                             </div>
             
                             <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 5px;">
-                                <input type="number" id="edit-time" name="time" placeholder="Preparation Time (minutes)" min="1" required>
-                                <input type="number" id="edit-calories" name="calories" placeholder="Calories (kcal)" min="1" required>
+                                <input type="number" id="edit-time" name="time" value="{{ recipe['recipeTime'] }}" placeholder="Preparation Time (minutes)" min="1" required>
+                                <input type="number" id="edit-calories" name="calories" value="{{ recipe['recipeCalories'] }}" placeholder="Calories (kcal)" min="1" required>
                                 <select id="edit-cuisines" name="cuisines" class="content-selector" required>
-                                    <option value="" disabled selected>Select a cuisine</option>
-                                    <option value="italian">Italian</option>
-                                    <option value="chinese">Chinese</option>
-                                    <option value="mexican">Mexican</option>
-                                    <option value="indian">Indian</option>
-                                    <option value="japanese">Japanese</option>
-                                    <option value="western">Western</option>
-                                    <option value="malay">Malay</option>
-                                    <option value="asian">Asian</option>
-                                    <option value="korean">Korean</option>
+                                    <option value="" disabled {% if not recipe['recipeCuisine'] %}selected{% endif %}>Select a cuisine</option>
+                                    <option value="italian" {% if recipe['recipeCuisine']|lower == 'italian' %}selected{% endif %}>Italian</option>
+                                    <option value="chinese" {% if recipe['recipeCuisine']|lower == 'chinese' %}selected{% endif %}>Chinese</option>
+                                    <option value="mexican" {% if recipe['recipeCuisine']|lower == 'mexican' %}selected{% endif %}>Mexican</option>
+                                    <option value="indian" {% if recipe['recipeCuisine']|lower == 'indian' %}selected{% endif %}>Indian</option>
+                                    <option value="japanese" {% if recipe['recipeCuisine']|lower == 'japanese' %}selected{% endif %}>Japanese</option>
+                                    <option value="western" {% if recipe['recipeCuisine']|lower == 'western' %}selected{% endif %}>Western</option>
+                                    <option value="malay" {% if recipe['recipeCuisine']|lower == 'malay' %}selected{% endif %}>Malay</option>
+                                    <option value="asian" {% if recipe['recipeCuisine']|lower == 'asian' %}selected{% endif %}>Asian</option>
+                                    <option value="korean" {% if recipe['recipeCuisine']|lower == 'korean' %}selected{% endif %}>Korean</option>
+                                <option value="american" {% if recipe['recipeCuisine']|lower == 'american' %}selected{% endif %}>American</option>
+                                <option value="french" {% if recipe['recipeCuisine']|lower == 'french' %}selected{% endif %}>French</option>
                                 </select>
                                 <select id="edit-labels" name="labels" class="content-selector" required>
-                                    <option value="" disabled selected>Select a label</option>
-                                    <option value="breakfast">Breakfast</option>
-                                    <option value="lunch">Lunch</option>
-                                    <option value="dinner">Dinner</option>
-                                    <option value="snack">Snack</option>
-                                    <option value="dessert">Dessert</option>
+                                    <option value="" disabled {% if not recipe['recipeLabel'] %}selected{% endif %}>Select a label</option>
+                                    <option value="breakfast" {% if recipe['recipeLabel']|lower == 'breakfast' %}selected{% endif %}>Breakfast</option>
+                                    <option value="lunch" {% if recipe['recipeLabel']|lower == 'lunch' %}selected{% endif %}>Lunch</option>
+                                    <option value="dinner" {% if recipe['recipeLabel']|lower == 'dinner' %}selected{% endif %}>Dinner</option>
+                                    <option value="snack" {% if recipe['recipeLabel']|lower == 'snack' %}selected{% endif %}>Snack</option>
+                                    <option value="dessert" {% if recipe['recipeLabel']|lower == 'dessert' %}selected{% endif %}>Dessert</option>
                                 </select>
                             </div>
-                            <textarea id="edit-steps" name="steps" placeholder="Steps" required></textarea>
+                            <textarea id="edit-steps" name="steps" placeholder="Steps" required>{{ recipe['recipeSteps'] | e }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -246,44 +250,12 @@
             window.location.href = "{{ url_for('main') }}";
         }
 
-        window.onload = function () {
-            const recipeId = getRecipeIdFromPath();
-            if (recipeId) {
-                fetchRecipeDetailsForEdit(recipeId);
-            } else {
-                console.error("Recipe ID not found in URL.");
-            }
-        };
+        window.addEventListener('DOMContentLoaded', function () {
+            updateArchiveButtonLabel("{{ recipe['recipeStatus'] }}");
+        });
 
         function getRecipeIdFromPath() {
-            const path = window.location.pathname;
-            const segments = path.split('/');
-            return segments[segments.length - 1]; // Extracts the last segment (recipe_id)
-        }
-
-        function fetchRecipeDetailsForEdit(recipeId) {
-            if (!recipeId) return;
-            
-            fetch(`/admin/recipe/${recipeId}`)
-                .then(response => response.json())
-                .then(data => {
-                    // Update the form fields with recipe data
-                    document.getElementById('edit-title').value = data.recipeTitle;
-                    document.getElementById('edit-description').value = data.recipeDescription;
-                    document.getElementById('edit-time').value = data.recipeTime;
-                    document.getElementById('edit-calories').value = data.recipeCalories;
-                    document.getElementById('edit-cuisines').value = data.recipeCuisine;
-                    document.getElementById('edit-ingredients').value = data.recipeIngredients;
-                    document.getElementById('edit-steps').value = data.recipeSteps;
-                    document.getElementById('edit-labels').value = data.recipeLabel;
-                    document.getElementById('edit-status').value = data.recipeStatus;
-                    document.getElementById('edit-image').src = data.recipeImage;
-                    document.getElementById('edit-image').style.display = 'block';
-                })
-                .catch(error => {
-                    console.error("Error fetching recipe details:", error);
-                    document.getElementById('editRecipeCard').innerHTML = '<p>Error fetching recipe details.</p>';
-                });
+            return "{{ recipe['recipeID'] }}";
         }
 
         function toggleRecipeArchive() {
@@ -344,6 +316,7 @@
                 })
                 .then(data => {
                     alert(data.message || "Recipe deleted successfully");
+                    window.location.href = "{{ url_for('profile') }}";
                 })
                 .catch(error => {
                     alert(`Error: ${error.message}`);

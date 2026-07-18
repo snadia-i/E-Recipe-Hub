@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Navigation -->
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('adminhome') }}" class="active">Dashboard</a></li>
+                    <li><a href="{{ url_for('notifications') }}">Notifications</a></li>
+                    <li><a href="{{ url_for('reports') }}">Reports</a></li>
+                    <li><a href="{{ url_for('manage') }}">Manage</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-header">
+                <h1>Welcome, Admin! ✨ </h1>
+                <div class="user-profile-sidebar">
+                    <img src="{{ admin_info.adminProfilePic }}" alt="Profile" class="user-profile-pic">
+                </div>
+                <div class="card">
+                    <h4 class="card-subtitle">ID: {{ admin_info.adminID }}</h4>
+                    <h4 class="card-subtitle">Admin Name: {{ admin_info.adminName }}</h4>
+                    <h4 class="card-subtitle">Admin Email: {{ admin_info.adminEmail }}</h4>
+                </div>    
+            </div>
+            
+            <div class="dashboard-content">
+                
+                <div class="card">
+                    <h3 class="card-title">
+                        <a href="{{ url_for('notifications') }}" class="card-link">Recent Notifications</a>
+                    </h3>
+                    <div class="card-list">
+                        {% if notifications %}
+                            {% for notification in notifications %}
+                            <div class="card-item">
+                                <div class="card-header">
+                                    <span class="card-id">#{{ notification['notiID'] }}</span>
+                                    <h4 class="card-subtitle">{{ notification['notiTitle'] }}</h4>
+                                    <span class="card-tag">{{ notification['notiReceiver'] }}</span>
+                                </div>
+                                <p class="card-details">{{ notification['notiDetails'] }}</p>
+                                <div class="card-footer">
+                                    <span class="card-time">{{ notification['notiTime'] }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No notifications available</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title">
+                        <a href="{{ url_for('reports') }}" class="card-link">Reports Overview</a>
+                    </h3>
+                    <div class="card-list">
+                        {% if reports %}
+                            {% for report in reports %}
+                            <div class="card-item">
+                                <div class="card-header">
+                                    <span class="card-id">#{{ report['reportID'] }}</span>
+                                    <span class="card-status {{ report['reportStatus'] }}">{{ report['reportStatus'] }}</span>
+                                </div>
+                                <p class="card-details">{{ report['reportDetails'] }}</p>
+                                <div class="card-footer">
+                                    <span class="card-time">{{ report['reportTime'] }}</span>
+                                    <span class="card-reference">Recipe #{{ report['reportedRecipeID'] }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No reports available</p>
+                        {% endif %}
+                    </div>
+                </div>
+    </div>
+</body>
+</html>

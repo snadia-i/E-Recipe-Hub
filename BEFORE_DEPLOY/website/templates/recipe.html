@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>#{{ recipe.recipeID }} {{ recipe.recipeTitle }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="container userhome">
+        <!-- Sidebar -->
+        <aside class="sidebar" style="background-color: white;">
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('main') }}">🏠</a></li>
+                    <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
+                    <li><a href="{{ url_for('collection')}}">❤️</a></li>
+                    {% if 'user' in session %}
+                        <li><a href="#" onclick="confirmLogout()">🚪</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}">🔑</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="card-view" id="viewRecipeCard">
+                <h3 class="recipe-details-title">#{{ recipe.recipeID }} {{ recipe.recipeTitle }}</h3>
+                <button class="close-button" onclick="window.history.back()"> x </button>
+
+                <div class="card-content">
+                    <div class="recipeImageContainer">
+                        <img src="{{ recipe.recipePic }}" alt="Recipe Image" class="recipe-view-image">
+                            <div class="like-container">
+                                <button class="heart-icon" id="like-button" onclick="toggleLike('{{ recipe.recipeID }}')">
+                                    {{ '❤️' if user_liked else '🤍' }}
+                                </button>
+                                <span id="likeCount">{{ recipe.likeCount }}</span>
+                            </div>
+
+                            <div class="collection-container">
+                                <button class="collection-icon" id="collection-button" onclick="toggleCollection('{{ recipe.recipeID }}')">
+                                    {{ '🔖' if user_collected else '📖' }}
+                                </button>
+                                <!-- Collection Selector Dropdown -->
+                                <div id="collection-selector" class="hidden">
+                                    <select id="collection-dropdown">
+                                        <option value="" disabled selected>Select a collection</option>
+                                    </select>
+                                    <button id="confirm-collection-btn">Confirm</button>
+                                </div>
+
+                            </div>
+
+                    </div>
+                    <div class="card-info">
+                        <div class="card-header">
+                            <span class="card-id">#{{ recipe.recipeID }}</span>
+                            <h4 class="card-subtitle">{{ recipe.recipeTitle }}</h4>
+                            <button class="edit-button" onclick="editRecipe('{{ recipe.recipeID }}')">Edit Recipe ✏️</button>
+                            <button class="edit-button" onclick="openReportPanel('{{ recipe.recipeID }}')">Report Recipe 📝 </button>
+                        </div>
+                        <div class="card-details">{{ recipe.recipeDescription }}</div>
+                        <div class="card-footer">
+                            <span class="card-time">{{ recipe.recipeTime }} mins</span>
+                            <span class="card-calories">{{ recipe.recipeCalories }} cal</span>
+                            <span class="card-cuisine">{{ recipe.recipeCuisine }}</span>
+                            <span class="card-label">{{ recipe.recipeLabel }}</span>
+                        </div>
+                        <div class="card-details">Ingredients: {{ recipe.recipeIngredients }}</div>
+                        <div class="card-details">Steps: {{ recipe.recipeSteps }}</div>
+                        <div class="card-details comment-section">
+                            <h4 class="comment-title">Comments</h4>
+                            <div class="comment-list" id="comment-list">
+                                {% if comments %}
+                                    {% for comment in comments %}
+                                        <div class="comment-item" data-comment-id="{{ comment.commentID }}">
+                                            <div class="comment-header">
+                                                <p class="comment-user"><strong>{{ comment.userName or 'Anonymous' }}</strong></p>
+                                                <p class="comment-time"><em>{{ comment.commentTime }}</em></p>
+                                                {% if session['user'] == comment.userName %}
+                                                    <button class="delete-comment-btn" onclick="deleteComment('{{ recipe.recipeID }}', '{{ comment.commentID }}')">Delete</button>
+                                                {% endif %}
+                                            </div>
+                                            <p class="comment-text">{{ comment.commentText }}</p>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No comments available.</p>
+                                {% endif %}
+                            </div>
+                            <form id="comment-form" onsubmit="addComment(event, '{{ recipe.recipeID }}')">
+                                <textarea name="comment" id="comment" placeholder="Add a comment..." maxlength="150" required></textarea>
+                                <button type="submit" class="btn-submit-comment">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create Report Panel -->
+                <div id="createReport" class="side-panel">
+                    <div class="panel-content">
+                        <h2>Create Report</h2>
+                        <label id="reportedRecipeID"></label>
+                        <label id="reportedUserID"></label>
+                        <label id="reportSender"></label>
+                
+                        <form id="createForm" method="POST">
+                            <div class="form-group">
+                                <label>Report Title</label>
+                                <input type="text" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Report Details</label>
+                                <textarea name="details" required></textarea>
+                            </div>
+                
+                            <div class="button-group">
+                                <button type="submit" class="btn btn-create">Create</button>
+                                <button type="button" class="btn btn-cancel" onclick="closeReportPanel()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <script>
+
+                function confirmLogout() {
+                    if (confirm("Are you sure you want to log out?")) {
+                        window.location.href = "/logout";
+                    }
+                }
+
+                const currentUser = "{{ session['user'] }}";
+                const COMMENT_MAX_LENGTH = 100;
+
+                function toggleLike(recipeID) {
+                    fetch(`/recipe/${recipeID}/like`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('likeCount').innerText = data.likeCount;
+                            const likeButton = document.getElementById('like-button');
+                            if (likeButton.innerText === '❤️') {
+                                likeButton.innerText = '🤍';
+                            } else {
+                                likeButton.innerText = '❤️';
+                            }
+                        } else {
+                            alert(data.error || 'Failed to like/unlike recipe');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+
+                function toggleCollection(recipeID) {
+                // Fetch user collections
+                fetch('/collection', {
+                    headers: { 'Accept': 'application/json' }  // Ensure it returns JSON
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.collections && data.collections.length > 0) {
+                        const collectionDropdown = document.getElementById('collection-dropdown');
+                        collectionDropdown.innerHTML = ''; // Clear previous options
+
+                        // Populate the dropdown with collection options
+                        data.collections.forEach(collection => {
+                            const option = document.createElement('option');
+                            option.value = collection.collectionID;
+                            option.textContent = collection.collectionName;
+                            collectionDropdown.appendChild(option);
+                        });
+
+                        // Show the collection selection UI
+                        document.getElementById('collection-selector').classList.remove('hidden');
+
+                        // Assign event to confirm button
+                        document.getElementById('confirm-collection-btn').onclick = function () {
+                            const selectedCollectionID = collectionDropdown.value;
+
+                            if (selectedCollectionID) {
+                                addToCollection(recipeID, selectedCollectionID);
+                            } else {
+                                alert('Please select a collection.');
+                            }
+                        };
+                    } else {
+                        alert('No collections available. Create one first!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching collections:', error);
+                });
+            }
+
+                // Function to save the recipe to the selected collection
+                function addToCollection(recipeID, collectionID) {
+                    fetch(`/recipe/${recipeID}/collection`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ collectionID })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Recipe successfully added to collection!');
+                            document.getElementById('collection-selector').classList.add('hidden');
+                        } else {
+                            alert(data.error || 'Failed to add recipe to collection.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+
+
+                function editRecipe(recipeID) {
+                    window.location.href = "{{ url_for('edit_recipe', recipe_id=0) }}".replace('0', recipeID);
+                }
+
+                function addComment(event, recipeID) {
+                    event.preventDefault();
+                    const commentInput = document.getElementById('comment');
+                    const commentText = commentInput.value.trim();
+
+                    if (commentText.length > COMMENT_MAX_LENGTH) {
+                        alert(`Comment cannot exceed ${COMMENT_MAX_LENGTH} characters.`);
+                        return;
+                    }
+
+                    const formData = new FormData(document.getElementById('comment-form'));
+                    fetch(`/recipe/${recipeID}/comment`, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const commentList = document.getElementById('comment-list');
+                            commentList.innerHTML = '';
+                            data.comments.forEach(comment => {
+                                const commentItem = document.createElement('div');
+                                commentItem.classList.add('comment-item');
+                                commentItem.setAttribute('data-comment-id', comment.commentID);
+                                commentItem.innerHTML = `
+                                    <div class="comment-header">
+                                        <p class="comment-user"><strong>${comment.userName || 'Anonymous'}</strong></p>
+                                        <p class="comment-time"><em>${comment.commentTime}</em></p>
+                                        ${currentUser === comment.userName ? `<button class="delete-comment-btn" onclick="deleteComment('${recipeID}', '${comment.commentID}')">Delete</button>` : ''}
+                                    </div>
+                                    <p class="comment-text">${comment.commentText}</p>
+                                `;
+                                commentList.appendChild(commentItem);
+                            });
+                            document.getElementById('comment-form').reset();
+                        } else {
+                            alert(data.error || 'Failed to add comment');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+
+                function deleteComment(recipeID, commentID) {
+                    if (!confirm('Are you sure you want to delete this comment?')) {
+                        return;
+                    }
+
+                    fetch(`/recipe/${recipeID}/comment/${commentID}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const commentItem = document.querySelector(`.comment-item[data-comment-id='${commentID}']`);
+                            if (commentItem) {
+                                commentItem.remove();
+                            }
+                        } else {
+                            alert(data.error || 'Failed to delete comment');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+
+                function openReportPanel(recipeId) {
+                    if (!recipeId) {
+                        console.error("Invalid recipeId:", recipeId);
+                        return;
+                    }
+                    console.log("Fetching data for recipeId:", recipeId);
+
+                    const panel = document.getElementById('createReport');
+                    panel.classList.add('active');
+
+                    fetch(`/api/recipe/${recipeId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                alert(data.error);
+                                return;
+                            }
+
+                            document.getElementById('reportedRecipeID').textContent = `Recipe ID: ${data.recipeID}`;
+                            document.getElementById('reportedUserID').textContent = `Reported User ID: ${data.userID}`;
+                            document.getElementById('reportSender').textContent = `Sender User ID: ${data.reportSenderUserID}`;
+
+                            // Update form action with dynamic parameters
+                            const form = document.getElementById('createForm');
+                            form.action = `/report/create/${data.recipeID}/${data.reportSenderUserID}/${data.userID}`;
+                        })
+                        .catch(error => console.error('Error fetching recipe data:', error));
+                }
+
+                function closeReportPanel() {
+                    document.getElementById('createReport').classList.remove('active');
+                }
+                
+            </script>
+        </body>
+        </html>

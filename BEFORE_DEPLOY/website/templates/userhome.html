@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="container userhome">
+        <!-- Sidebar -->
+        <aside class="sidebar" style="background-color: white;">
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('main') }}">🏠</a></li>
+                    <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
+                    <li><a href="{{ url_for('collection')}}">❤</a></li>
+                    {% if 'user' in session %}
+                        <li><a href="#" onclick="confirmLogout()">🚪</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}">🔑</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <div class="search-container">
+                    <input type="text" placeholder="Any cravings today?" class="search-bar" id="search-input">
+                    <button class="search-icon" id="search-button">🔍</button>
+                </div>
+                <div class="filter-container" style="position: relative; display: inline-block;">
+                    <button class="filter-btn">Filters <span class="filter-icon">🔧</span></button>
+                    <!-- Filter Box Positioned Below the Filter Button -->
+                    <div class="filter-box" id="filter-box">
+                        <div class="filter-content">
+                            <!-- Cuisines Section -->
+                            <div class="filter-section cuisines">
+                                <h4>Cuisines:</h4>
+                                <ul>
+                                    <li><input type="checkbox" id="Italian" name="cuisine" value="Italian"> <label for="Italian">Italian</label></li>
+                                    <li><input type="checkbox" id="Indian" name="cuisine" value="Indian"> <label for="Indian">Indian</label></li>
+                                    <li><input type="checkbox" id="American" name="cuisine" value="American"> <label for="American">American</label></li>
+                                    <li><input type="checkbox" id="Mexican" name="cuisine" value="Mexican"> <label for="Mexican">Mexican</label></li>
+                                    <li><input type="checkbox" id="Asian" name="cuisine" value="Asian"> <label for="Asian">Asian</label></li>
+                                    <li><input type="checkbox" id="French" name="cuisine" value="French"> <label for="French">French</label></li>
+                                </ul>
+                            </div>
+                            <!-- Labels Section -->
+                            <div class="filter-section labels">
+                                <h4>Label:</h4>
+                                <ul>
+                                    <li><input type="checkbox" id="breakfast" name="label" value="breakfast"> <label for="breakfast">breakfast</label></li>
+                                    <li><input type="checkbox" id="lunch" name="label" value="lunch"> <label for="lunch">lunch</label></li>
+                                    <li><input type="checkbox" id="dessert" name="label" value="dessert"> <label for="dessert">dessert</label></li>
+                                    <li><input type="checkbox" id="dinner" name="label" value="dinner"> <label for="dinner">dinner</label></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sort-container" style="position: relative; display: inline-block;">
+                        <button class="sort-btn" id="sort-btn">Sort By <span class="sort-icon">⬇</span></button>
+                        <div class="sort-box" id="sort-box" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 200px;">
+                            <div class="sort-content">
+                                <h4>Sort By:</h4>
+                                <ul>
+                                    <div class="radio-group-vertical">
+                                        <label><input type="radio" name="sort" value="title"> <span>Title</span></label>
+                                        <label><input type="radio" name="sort" value="time"> <span>Time</span></label>
+                                        <label><input type="radio" name="sort" value="calories"> <span>Calories</span></label>
+                                    </div>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="position: relative; display: inline-block;">
+                        <button class="notification-btn" id="notification-btn">🔔</button>
+                        <div class="notification-box" id="notification-box" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 500px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+                            <h4>Notifications</h4>
+                            <div class="card">
+                                {% if notifications %}
+                                    {% for notification in notifications %}
+                                        <div class="card-list" data-title="{{ notification['title'] | e }}" >
+                                            <div class="card-header">
+                                                <span class="card-id">#{{ notification['notiID'] }}</span>
+                                                <h4 class="card-subtitle">{{ notification['notiTitle'] }}</h4>
+                                            </div>
+                                            <p class="card-details">{{ notification['notiDetails'] }}</p>
+                                            <div class="card-footer">
+                                                <span class="card-time">{{ notification['notiTime'] }}</span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No new notifications</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                <a href="{{ url_for('profile') }}"> <button class="profile-btn">👤</button> </a>
+            </header>
+
+            <h2>Recommended For You</h2>
+            <div class="card-container">
+                {% if recipes %}
+                    {% for recipe in recipes %}
+                        <div class="card-item" data-title="{{ recipe['recipeTitle'] | e }}" onclick="viewRecipeDetails('{{ recipe.recipeID }}')">
+                            <img src="{{ recipe['recipePic'] | e }}" alt="{{ recipe['recipeTitle'] | e }}" class="recipe-image">
+                            <div class="card-header">
+                                <span class="card-id">#{{ recipe['recipeID'] | e }}</span>
+                                <h4 class="card-subtitle">{{ recipe['recipeTitle'] | e }}</h4>
+                                <!-- <span class="card-tag {{ recipe['recipeStatus'] | e }}">{{ recipe['recipeStatus'] | e }}</span> -->
+                            </div>
+                            <div class="card-details">{{ recipe['recipeDescription'] | e }}</div>
+                            <div class="card-footer">
+                                <span class="card-time">{{ recipe['recipeTime'] | e }} mins</span>
+                                <span class="card-calories">{{ recipe['recipeCalories'] | e }} cal</span>
+                                <span class="card-cuisine">{{ recipe['recipeCuisine'] | e }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No recipes available</p>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+
+        function confirmLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "/logout";
+            }
+        }
+        // Toggle the filter box
+        document.querySelector('.filter-btn').addEventListener('click', function () {
+            const filterBox = document.getElementById('filter-box');
+            filterBox.style.display = filterBox.style.display === 'none' || !filterBox.style.display ? 'block' : 'none';
+        });
+
+        // Close filter box when clicking outside
+        document.addEventListener('click', function (event) {
+            const filterBox = document.getElementById('filter-box');
+            const filterButton = document.querySelector('.filter-btn');
+            if (filterBox.style.display === 'block' && !filterBox.contains(event.target) && event.target !== filterButton) {
+                filterBox.style.display = 'none';
+            }
+        });
+
+        document.getElementById('sort-btn').addEventListener('click', function () {
+            const sortBox = document.getElementById('sort-box');
+            sortBox.style.display = sortBox.style.display === 'none' || !sortBox.style.display ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', function (event) {
+            const sortBox = document.getElementById('sort-box');
+            const sortButton = document.getElementById('sort-btn');
+            if (sortBox.style.display === 'block' && !sortBox.contains(event.target) && event.target !== sortButton) {
+                sortBox.style.display = 'none';
+            }
+        });
+
+        document.getElementById('search-button').addEventListener('click', function () {
+            let query = document.getElementById('search-input').value.trim();
+
+            if (query) {
+                fetch(`/search?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data =>displaySearchResults(data))
+                    .catch(error => console.error('Error fetching search results:', error));
+            }
+        });
+
+        document.getElementById('search-input').addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+            document.getElementById('search-button').click();
+            }
+        });
+
+        function displaySearchResults(recipe) {
+            let container = document.querySelector('.card-container');
+            container.innerHTML = ''; // Clear previous results
+
+            if (recipe.length === 0) {
+                container.innerHTML = '<p>No recipes found.</p>';
+                return;
+            }
+
+            recipe.forEach(recipe => {
+                let card = document.createElement('div');
+                card.classList.add('card-item');
+                card.setAttribute('data-title', recipe.recipeTitle);
+                card.onclick = () => viewRecipeDetails(recipe.recipeID);
+            
+                card.innerHTML = `
+                    <img src="${recipe.recipePic}" alt="${recipe.recipeTitle}" class="recipe-image">
+                    <div class="card-header">
+                        <span class="card-id">#${recipe.recipeID}</span>
+                        <h4 class="card-subtitle">${recipe.recipeTitle}</h4>
+                    </div>
+                    <div class="card-details">${recipe.recipeDescription}</div>
+                    <div class="card-footer">
+                        <span class="card-time">${recipe.recipeTime} mins</span>
+                        <span class="card-calories">${recipe.recipeCalories} cal</span>
+                        <span class="card-cuisine">${recipe.recipeCuisine}</span>
+                    </div>
+                `;
+            
+                container.appendChild(card);
+            });
+        }
+
+        const notificationBtn = document.getElementById('notification-btn');
+        const notificationBox = document.getElementById('notification-box');
+
+        notificationBtn.addEventListener('click', () => {
+            notificationBox.style.display = notificationBox.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.querySelectorAll("input[type='checkbox']").forEach(checkbox => {
+            checkbox.addEventListener("change", () => {
+                filterRecipes();
+            });
+        });
+
+        function filterRecipes() {
+            let selectedCuisines = Array.from(document.querySelectorAll("input[name='cuisine']:checked"))
+                .map(cb => cb.value);
+            let selectedLabels = Array.from(document.querySelectorAll("input[name='label']:checked"))
+                .map(cb => cb.value);
+
+            console.log("Selected Cuisines:", selectedCuisines);
+            console.log("Selected Labels:", selectedLabels);
+
+            fetch("/filter", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    cuisines: selectedCuisines,
+                    labels: selectedLabels
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Filtered Recipes:", data);
+                displayFilteredRecipes(data);
+            })
+            .catch(error => console.error("Error fetching filtered recipes:", error));
+        }
+
+
+        function displayFilteredRecipes(recipes) {
+            let container = document.querySelector(".card-container");
+            container.innerHTML = ""; // Clear previous results
+
+            if (recipes.length === 0) {
+                container.innerHTML = "<p>No recipes found.</p>";
+                return;
+            }
+
+            recipes.forEach(recipe => {
+                let card = document.createElement("div");
+                card.classList.add("card-item");
+                card.setAttribute("data-title", recipe.recipeTitle);
+                card.onclick = () => viewRecipeDetails(recipe.recipeID);
+        
+                card.innerHTML = `
+                    <img src="${recipe.recipePic}" alt="${recipe.recipeTitle}" class="recipe-image">
+                    <div class="card-header">
+                        <span class="card-id">#${recipe.recipeID}</span>
+                        <h4 class="card-subtitle">${recipe.recipeTitle}</h4>
+                    </div>
+                    <div class="card-details">${recipe.recipeDescription}</div>
+                    <div class="card-footer">
+                        <span class="card-time">${recipe.recipeTime} mins</span>
+                        <span class="card-calories">${recipe.recipeCalories} cal</span>
+                        <span class="card-cuisine">${recipe.recipeCuisine}</span>
+                    </div>
+                `;
+        
+                container.appendChild(card);
+            });
+        }
+
+        document.querySelectorAll("input[name='sort']").forEach(checkbox => {
+            checkbox.addEventListener("change", function () {
+                // Uncheck all other checkboxes
+                document.querySelectorAll("input[name='sort']").forEach(cb => {
+                    if (cb !== this) cb.checked = false;
+                });
+
+                // If unchecked, reset sorting
+            if (!this.checked) {
+                resetRecipes(); // Function to reset recipes to original order
+                return;
+            }
+
+                sortRecipes();
+            });
+        });
+
+        function sortRecipes() {
+            let selectedSort = document.querySelector("input[name='sort']:checked")?.value || "";
+            let selectedCuisines = Array.from(document.querySelectorAll("input[name='cuisine']:checked")).map(cb => cb.value);
+            let selectedLabels = Array.from(document.querySelectorAll("input[name='label']:checked")).map(cb => cb.value);
+
+            fetch("/sort", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    sort_by: selectedSort,
+                    order: "asc",
+                })
+            })
+            .then(response => response.json())
+            .then(data => displaySortedRecipes(data))
+            .catch(error => console.error("Error fetching sorted recipes:", error));
+
+            console.log({
+                sort_by: selectedSort,
+                order: "asc",
+                cuisines: selectedCuisines,
+                labels: selectedLabels  
+            });
+        }
+
+
+        function displaySortedRecipes(recipes) {
+            let container = document.querySelector(".card-container");
+            container.innerHTML = ""; // Clear previous results
+
+            if (recipes.length === 0) {
+                container.innerHTML = "<p>No recipes found.</p>";
+                return;
+            }
+
+            recipes.forEach(recipe => {
+                let card = document.createElement("div");
+                card.classList.add("card-item");
+                card.setAttribute("data-title", recipe.recipeTitle);
+                card.onclick = () => viewRecipeDetails(recipe.recipeID);
+
+                card.innerHTML = `
+                    <img src="${recipe.recipePic}" alt="${recipe.recipeTitle}" class="recipe-image">
+                    <div class="card-header">
+                        <span class="card-id">#${recipe.recipeID}</span>
+                        <h4 class="card-subtitle">${recipe.recipeTitle}</h4>
+                    </div>
+                    <div class="card-details">${recipe.recipeDescription}</div>
+                    <div class="card-footer">
+                        <span class="card-time">${recipe.recipeTime} mins</span>
+                        <span class="card-calories">${recipe.recipeCalories} cal</span>
+                        <span class="card-cuisine">${recipe.recipeCuisine}</span>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            console.log("Recipes displayed."); // Debugging
+        }
+
+        function resetRecipes() {
+            console.log("Resetting recipes...");
+        }
+
+        document.addEventListener('click', (event) => {
+            if (!notificationBox.contains(event.target) && event.target !== notificationBtn) {
+                notificationBox.style.display = 'none';
+            }
+        });
+
+        // Close the box when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!notificationBtn.contains(e.target) && !notificationBox.contains(e.target)) {
+                notificationBox.style.display = 'none';
+            }
+        });
+
+        function viewRecipeDetails(recipeID) {
+            window.location.href = "{{ url_for('get_recipe', id=0) }}".replace('0', recipeID);
+        }
+        
+    </script>
+</body>
+</html>

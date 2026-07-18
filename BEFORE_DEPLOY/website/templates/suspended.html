@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
+</head>
+<body id="background">
+    <div class="login-container">
+        <div class="suspended-message">
+            🛑 Your account is suspended. Please contact help for support. 💬
+            <br><br>
+            <a href="{{ url_for('logout') }}" class="back-button">Go Back to Home</a>
+        </div>
+    </div>
+    
+    <style>
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            background-color: #f9f9f9;
+            border: 2px solid #ffcccc;
+            border-radius: 10px;
+            padding: 20px;
+        }
+    
+        .suspended-message {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background-color: #ffe6e6;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: #cc0000;
+            font-size: 18px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+    
+        .back-button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #cc0000;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+        }
+    
+        .back-button:hover {
+            background-color: #ff4d4d;
+        }
+    </style>
+    
+    <script>
+
+        const backgrounds = [
+            "{{ url_for('static', filename='./images/bg1.gif') }}",
+            "{{ url_for('static', filename='./images/bg2.gif') }}",
+            "{{ url_for('static', filename='./images/bg3.gif') }}",
+            "{{ url_for('static', filename='./images/bg4.gif') }}",
+            "{{ url_for('static', filename='./images/bg5.gif') }}",
+            "{{ url_for('static', filename='./images/bg6.gif') }}",
+            "{{ url_for('static', filename='./images/bg7.gif') }}",
+        ];
+
+        let index = 0;
+        function changeBackground() {
+            const randomIndex = Math.floor(Math.random() * backgrounds.length);
+            const backgroundElement = document.getElementById('background');
+            const newBackground = `url(${backgrounds[randomIndex]})`;
+
+            backgroundElement.style.opacity = 0;
+            setTimeout(() => {
+                backgroundElement.style.background = `${newBackground} no-repeat center center fixed`;
+                backgroundElement.style.backgroundSize = "cover";
+                backgroundElement.style.opacity = 1;
+            });
+        }
+
+        setInterval(changeBackground, 8000);
+
+        window.onload = changeBackground;
+
+    </script>
+</body>
+</html>

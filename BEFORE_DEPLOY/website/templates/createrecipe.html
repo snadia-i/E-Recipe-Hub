@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Recipe</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="container userhome">
+        <!-- Sidebar -->
+        <aside class="sidebar" style="background-color: white;">
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('main') }}">🏠</a></li>
+                    <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
+                    <li><a href="{{ url_for('collection') }}">❤️</a></li>
+                    {% if 'user' in session %}
+                        <li><a href="#" onclick="confirmLogout()">🚪</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}">🔑</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <div class="search-container">
+                    <input type="text" placeholder="Any cravings today?" class="search-bar" id="search-input">
+                    <button class="search-icon" id="search-button">🔍</button>
+                </div>
+                <div class="filter-container" style="position: relative; display: inline-block;">
+                    <button class="filter-btn">Filters <span class="filter-icon">🔧</span></button>
+                    <!-- Filter Box Positioned Below the Filter Button -->
+                    <div class="filter-box" id="filter-box">
+                        <div class="filter-content">
+                            <!-- Cuisines Section -->
+                            <div class="filter-section cuisines">
+                                <h4>Cuisines:</h4>
+                                <ul>
+                                    <li><input type="checkbox" id="Italian" name="cuisine" value="Italian"> <label for="Italian">Italian</label></li>
+                                    <li><input type="checkbox" id="Indian" name="cuisine" value="Indian"> <label for="Indian">Indian</label></li>
+                                    <li><input type="checkbox" id="American" name="cuisine" value="American"> <label for="American">American</label></li>
+                                    <li><input type="checkbox" id="Mexican" name="cuisine" value="Mexican"> <label for="Mexican">Mexican</label></li>
+                                    <li><input type="checkbox" id="Asian" name="cuisine" value="Asian"> <label for="Asian">Asian</label></li>
+                                    <li><input type="checkbox" id="French" name="cuisine" value="French"> <label for="French">French</label></li>
+                                </ul>
+                            </div>
+                            <!-- Labels Section -->
+                            <div class="filter-section labels">
+                                <h4>Label:</h4>
+                                <ul>
+                                    <li><input type="checkbox" id="breakfast" name="label" value="breakfast"> <label for="breakfast">breakfast</label></li>
+                                    <li><input type="checkbox" id="lunch" name="label" value="lunch"> <label for="lunch">lunch</label></li>
+                                    <li><input type="checkbox" id="dessert" name="label" value="dessert"> <label for="dessert">dessert</label></li>
+                                    <li><input type="checkbox" id="dinner" name="label" value="dinner"> <label for="dinner">dinner</label></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sort-container" style="position: relative; display: inline-block;">
+                        <button class="sort-btn" id="sort-btn">Sort By <span class="sort-icon">⬇</span></button>
+                        <div class="sort-box" id="sort-box" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 200px;">
+                            <div class="sort-content">
+                                <h4>Sort By:</h4>
+                                <ul>
+                                    <div class="radio-group-vertical">
+                                        <label><input type="radio" name="sort" value="title"> <span>Title</span></label>
+                                        <label><input type="radio" name="sort" value="time"> <span>Time</span></label>
+                                        <label><input type="radio" name="sort" value="calories"> <span>Calories</span></label>
+                                    </div>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="position: relative; display: inline-block;">
+                        <button class="notification-btn" id="notification-btn">🔔</button>
+                        <div class="notification-box" id="notification-box" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 500px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+                            <h4>Notifications</h4>
+                            <div class="card">
+                                {% if notifications %}
+                                    {% for notification in notifications %}
+                                        <div class="card-list" data-title="{{ notification['title'] | e }}" >
+                                            <div class="card-header">
+                                                <span class="card-id">#{{ notification['notiID'] }}</span>
+                                                <h4 class="card-subtitle">{{ notification['notiTitle'] }}</h4>
+                                            </div>
+                                            <p class="card-details">{{ notification['notiDetails'] }}</p>
+                                            <div class="card-footer">
+                                                <span class="card-time">{{ notification['notiTime'] }}</span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No new notifications</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                <a href="{{ url_for('profile') }}"> <button class="profile-btn">👤</button> </a>
+            </header>
+
+            <h1>Create New Recipe</h1>
+            <form id="recipe-form" class="recipe-form" method="POST" enctype="multipart/form-data">
+                <div class="recipe-form-container">
+                    <!-- Image Upload Section -->
+                    <div class="image-container">
+                        <label for="recipe-image">Recipe Image:</label>
+
+                        <input type="file" id="recipe-image" name="recipe_image" accept="image/*" onchange="previewImage(event)">
+                        <img id="preview" src="" alt="Image Preview" style="display: none; max-width: 200px; margin-top: 10px;">
+
+                        <!-- Save Draft & Publish Buttons Below the Image -->
+                        <div class="form-buttons">
+                            <button type="submit" class="publish">Publish</button>
+                        </div>
+                    </div>
+
+                    <!-- Recipe Details Section -->
+                    <div class="recipe-details">
+                        <input type="text" id="title" name="title" placeholder="Title" required>
+                        
+                        <div class="recipe-form-container" style="display: flex; gap: 10px;">
+                            <!-- Description & Ingredients in a Column -->
+                            <div style="flex: 1; display: flex; flex-direction: column; gap: 10px;">
+                                <textarea id="description" name="description" placeholder="Description (max 100 words)" maxlength="100" required style="flex-grow: 1; min-height: 120px;"></textarea>
+                                <textarea id="ingredients" name="ingredients" placeholder="Ingredients" required style="flex-grow: 1; min-height: 120px;"></textarea>
+                            </div>
+
+                        <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 5px;">
+                            <input type="number" id="time" name="time" placeholder="Preparation Time (minutes)" min="1" required>
+                            <input type="number" id="calories" name="calories" placeholder="Calories (kcal)" min="1" required>
+                            <select id="cuisines" name="cuisines" class="content-selector" required>
+                                <option value="" disabled selected>Select a cuisine</option>
+                                <option value="italian">Italian</option>
+                                <option value="chinese">Chinese</option>
+                                <option value="mexican">Mexican</option>
+                                <option value="indian">Indian</option>
+                                <option value="japanese">Japanese</option>
+                                <option value="western">Western</option>
+                                <option value="malay">Malay</option>
+                                <option value="asian">Asian</option>
+                                <option value="korean">Korean</option>
+                            </select>
+                            <select id="labels" name="labels" class="content-selector" required>
+                                <option value="" disabled selected>Select a label</option>
+                                <option value="breakfast">Breakfast</option>
+                                <option value="lunch">Lunch</option>
+                                <option value="dinner">Dinner</option>
+                                <option value="snack">Snack</option>
+                                <option value="dessert">Dessert</option>
+                            </select>
+                        </div>
+                        <textarea id="steps" name="steps" placeholder="Steps" required></textarea>
+                    </div>
+                </div>
+            </form>
+
+        </main>
+    </div>
+
+    <script>
+
+        function confirmLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "/logout";
+            }
+        }
+
+        // Toggle the filter box
+        document.querySelector('.filter-btn').addEventListener('click', function () {
+            const filterBox = document.getElementById('filter-box');
+            filterBox.style.display = filterBox.style.display === 'none' || !filterBox.style.display ? 'block' : 'none';
+        });
+
+        // Close filter box when clicking outside
+        document.addEventListener('click', function (event) {
+            const filterBox = document.getElementById('filter-box');
+            const filterButton = document.querySelector('.filter-btn');
+            if (filterBox.style.display === 'block' && !filterBox.contains(event.target) && event.target !== filterButton) {
+                filterBox.style.display = 'none';
+            }
+        });
+
+        document.getElementById('sort-btn').addEventListener('click', function () {
+            const sortBox = document.getElementById('sort-box');
+            sortBox.style.display = sortBox.style.display === 'none' || !sortBox.style.display ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', function (event) {
+            const sortBox = document.getElementById('sort-box');
+            const sortButton = document.getElementById('sort-btn');
+            if (sortBox.style.display === 'block' && !sortBox.contains(event.target) && event.target !== sortButton) {
+                sortBox.style.display = 'none';
+            }
+        });
+
+        const notificationBtn = document.getElementById('notification-btn');
+        const notificationBox = document.getElementById('notification-box');
+
+        notificationBtn.addEventListener('click', () => {
+            notificationBox.style.display = notificationBox.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!notificationBox.contains(event.target) && event.target !== notificationBtn) {
+                notificationBox.style.display = 'none';
+            }
+        });
+
+        // Image preview handler
+        function previewImage(event) {
+            const preview = document.getElementById('preview');
+            const file = event.target.files[0];
+
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+        
+    </script>
+</body>
+</html>

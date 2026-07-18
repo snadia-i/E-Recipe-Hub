@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="container userhome">
+        <!-- Sidebar -->
+        <aside class="sidebar" style="background-color: white;">
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('main') }}">🏠</a></li>
+                    <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
+                    <li><a href="{{ url_for('collection')}}">❤️</a></li>
+                    {% if 'user' in session %}
+                        <li><a href="#" onclick="confirmLogout()">🚪</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}">🔑</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <div class="search-container">
+                    <input type="text" placeholder="Any cravings today?" class="search-bar" id="search-input">
+                    <button class="search-icon" id="search-button">🔍</button>
+                </div>
+                <div class="filter-container" style="position: relative; display: inline-block;">
+                    <button class="filter-btn">Filters <span class="filter-icon">🔧</span></button>
+                    <!-- Filter Box Positioned Below the Filter Button -->
+                    <div class="filter-box" id="filter-box">
+                        <div class="filter-content">
+                            <!-- Cuisines Section -->
+                            <div class="filter-section cuisines">
+                                <h4>Cuisines:</h4>
+                                <ul>
+                                    <li><input type="checkbox" id="Italian" name="cuisine" value="Italian"> <label for="Italian">Italian</label></li>
+                                    <li><input type="checkbox" id="Indian" name="cuisine" value="Indian"> <label for="Indian">Indian</label></li>
+                                    <li><input type="checkbox" id="American" name="cuisine" value="American"> <label for="American">American</label></li>
+                                    <li><input type="checkbox" id="Mexican" name="cuisine" value="Mexican"> <label for="Mexican">Mexican</label></li>
+                                    <li><input type="checkbox" id="Asian" name="cuisine" value="Asian"> <label for="Asian">Asian</label></li>
+                                    <li><input type="checkbox" id="French" name="cuisine" value="French"> <label for="French">French</label></li>
+                                </ul>
+                            </div>
+                            <!-- Labels Section -->
+                            <div class="filter-section labels">
+                                <h4>Label:</h4>
+                                <ul>
+                                    <li><input type="checkbox" id="breakfast" name="label" value="breakfast"> <label for="breakfast">breakfast</label></li>
+                                    <li><input type="checkbox" id="lunch" name="label" value="lunch"> <label for="lunch">lunch</label></li>
+                                    <li><input type="checkbox" id="dessert" name="label" value="dessert"> <label for="dessert">dessert</label></li>
+                                    <li><input type="checkbox" id="dinner" name="label" value="dinner"> <label for="dinner">dinner</label></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sort-container" style="position: relative; display: inline-block;">
+                        <button class="sort-btn" id="sort-btn">Sort By <span class="sort-icon">⬇</span></button>
+                        <div class="sort-box" id="sort-box" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 200px;">
+                            <div class="sort-content">
+                                <h4>Sort By:</h4>
+                                <ul>
+                                    <div class="radio-group-vertical">
+                                        <label><input type="radio" name="sort" value="title"> <span>Title</span></label>
+                                        <label><input type="radio" name="sort" value="time"> <span>Time</span></label>
+                                        <label><input type="radio" name="sort" value="calories"> <span>Calories</span></label>
+                                    </div>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="position: relative; display: inline-block;">
+                        <button class="notification-btn" id="notification-btn">🔔</button>
+                        <div class="notification-box" id="notification-box" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 500px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+                            <h4>Notifications</h4>
+                            <div class="card">
+                                {% if notifications %}
+                                    {% for notification in notifications %}
+                                        <div class="card-list" data-title="{{ notification['title'] | e }}" >
+                                            <div class="card-header">
+                                                <span class="card-id">#{{ notification['notiID'] }}</span>
+                                                <h4 class="card-subtitle">{{ notification['notiTitle'] }}</h4>
+                                            </div>
+                                            <p class="card-details">{{ notification['notiDetails'] }}</p>
+                                            <div class="card-footer">
+                                                <span class="card-time">{{ notification['notiTime'] }}</span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No new notifications</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                <a href="{{ url_for('profile') }}"> <button class="profile-btn">👤</button> </a>
+            </header>
+
+            <!-- Profile Content -->
+            <div class="profile-container">
+                <img id="profileHeaderPic" class="user-header-pic" src="{{ user['userHeaderPic'] }}" alt="Header Picture">
+                <div class="user-profile-container">
+                    <img id="profileProfilePic" class="user-profile-pic" src="{{ user['userProfilePic'] }}" alt="Profile Picture">
+                </div>
+                <div class="card-header">
+                    <span id="profileId" class="card-id">#{{ user['userID'] }}</span>
+                    <h4 id="profileName" class="card-subtitle">{{ user['userName'] }}</h4>
+                    <span id="profileStatus" class="card-tag">{{ user['userStatus'] }}</span>
+                    <!-- Add Edit Profile Button -->
+                    <button class="edit-button" onclick="openEditProfile()">Edit Profile</button>
+                    <!-- Add Change Password Button -->
+                    <button class="edit-button" onclick="openChangePassword()">Change Password</button>
+                </div>
+                <p id="profileBio" class="card-bio">{{ user['userBio'] }}</p>
+                <p id="profileEmail" class="card-details">{{ user['userEmail'] }}</p>
+                <div class="card-footer">
+                    <span id="profilePackage" class="card-package">{{ user['userPackage'] }}</span>
+                </div>
+                <!-- Edit Profile Form -->
+                <div id="editProfileForm" class="edit-profile-form hidden form-spacing">
+                    <form action="{{ url_for('edit_profile') }}" method="POST" enctype="multipart/form-data" onsubmit="return validateEditProfileForm()">
+                        <div class="form-group">
+                            <label for="userName">Name:</label>
+                            <input type="text" id="userName" name="userName" value="{{ user['userName'] }}">
+                        </div>
+                
+                        <div class="form-group">
+                            <label for="userBio">Bio:</label>
+                            <textarea id="userBio" name="userBio">{{ user['userBio'] }}</textarea>
+                        </div>
+                
+                        <div class="form-group">
+                            <label for="userEmail">Email:</label>
+                            <input type="email" id="userEmail" name="userEmail" value="{{ user['userEmail'] }}">
+                        </div>
+                
+                        <div class="form-group file-input">
+                            <label for="userProfilePic">Profile Picture:</label>
+                            <input type="file" id="userProfilePic" name="userProfilePic">
+                        </div>
+                
+                        <div class="form-group file-input">
+                            <label for="userHeaderPic">Header Picture:</label>
+                            <input type="file" id="userHeaderPic" name="userHeaderPic">
+                        </div>
+                
+                        <div class="form-buttons">
+                            <button type="submit" class="save-btn">Save Changes</button>
+                            <button type="button" class="cancel-btn" onclick="closeEditProfile()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Change Password Form -->
+                <div id="changePasswordForm" class="change-password-form hidden form-spacing">
+                    <form action="{{ url_for('change_password') }}" method="POST" onsubmit="return validateChangePasswordForm()">
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password:</label>
+                            <input type="password" id="currentPassword" name="currentPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password:</label>
+                            <input type="password" id="newPassword" name="newPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password:</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="submit" class="save-btn">Save Changes</button>
+                            <button type="button" class="cancel-btn" onclick="closeChangePassword()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Published Recipes -->
+                <h3 class="card-title">Published Recipes:</h3>
+                <div class="card-grid" id="viewProfileRecipesGrid">
+                    {% if recipes %}
+                        {% for recipe in recipes %}
+                            <div class="card-item" data-title="{{ recipe['recipeTitle'] | e }}" onclick="viewRecipeDetails('{{ recipe.recipeID }}')">
+                                <img src="{{ recipe['recipePic'] | e }}" alt="{{ recipe['recipeTitle'] | e }}" class="recipe-image">
+                                <div class="card-header">
+                                    <span class="card-id">#{{ recipe['recipeID'] | e }}</span>
+                                    <h4 class="card-subtitle">{{ recipe['recipeTitle'] | e }}</h4>
+                                    <!-- <span class="card-tag {{ recipe['recipeStatus'] | e }}">{{ recipe['recipeStatus'] | e }}</span> -->
+                                    <!-- <button class="edit-recipe-btn" onclick="editRecipe('{{ recipe.recipeID }}')">✏️ Edit</button> -->
+                                </div>
+                                <div class="card-details">{{ recipe['recipeDescription'] | e }}</div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No recipes available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        function confirmLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "/logout";
+            }
+        }
+
+        function openEditProfile() {
+            document.getElementById('editProfileForm').classList.remove('hidden');
+        }
+
+        function closeEditProfile() {
+            document.getElementById('editProfileForm').classList.add('hidden');
+        }
+
+        function validateEditProfileForm() {
+            const userName = document.getElementById('userName').value.trim();
+            const userEmail = document.getElementById('userEmail').value.trim();
+
+            if (!userName || !userEmail) {
+                alert("Name and Email fields cannot be empty");
+                return false;
+            }
+            return true;
+        }
+
+        function saveEditProfile() {
+            alert("Profile changes saved successfully");
+        }
+
+        function viewRecipeDetails(recipeID) {
+            window.location.href = "{{ url_for('get_recipe', id=0) }}".replace('0', recipeID);
+        }
+
+        function openChangePassword() {
+            document.getElementById('changePasswordForm').classList.remove('hidden');
+        }
+
+        function closeChangePassword() {
+            document.getElementById('changePasswordForm').classList.add('hidden');
+        }
+
+        function validateChangePasswordForm() {
+            const currentPassword = document.getElementById('currentPassword').value.trim();
+            const newPassword = document.getElementById('newPassword').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert("All fields are required");
+                return false;
+            }
+
+            if (newPassword.length < 8) {
+                alert("Password must be at least 8 characters long");
+                return false;
+            }
+
+            if (newPassword === currentPassword) {
+                alert("New password cannot be the same as the current password");
+                return false;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert("New passwords do not match");
+                return false;
+            }
+            return true;
+        }
+
+        function showAlert(message) {
+            alert(message);
+        }
+    </script>
+</body>
+</html>

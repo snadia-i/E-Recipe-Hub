@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Not Found · E-Recipe Hub{% endblock %}
+{% block body_class %}error-page{% endblock %}
+{% block body %}
+<section class="error-card">
+    <div class="error-code">404</div>
+    <h1>This page could not be found.</h1>
+    <p>The item may have been removed or the address may be incorrect.</p>
+    <a class="btn btn-primary" href="{{ url_for('main') }}">Return home</a>
+</section>
+{% endblock %}

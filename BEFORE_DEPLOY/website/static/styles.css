@@ -1,0 +1,1696 @@
+/* ------ Reset & Base Styles -------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f2f5;
+}
+
+/* ------ Layout -------- */
+.container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ------- Sidebar Styles --------- */
+.sidebar {
+    width: 150px;
+    background: #2c3e50;
+    color: white;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    height: 100vh;
+    position: fixed;
+}
+
+/* Navigation */
+.sidebar nav {
+    margin-top: 30px;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar ul li {
+    margin: 8px 0;
+}
+
+.sidebar ul li a {
+    color: #ecf0f1;
+    text-decoration: none;
+    padding: 10px 15px;
+    display: block;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.sidebar ul li a:hover {
+    background: #34495e;
+    transform: translateX(5px);
+}
+
+/* Main Content */
+.dashboard-container {
+    flex: 1;
+    background: #f8f9fa;
+    padding: 20px;
+    width: calc(100vw - 170px); /* Accounts for both padding and sidebar */
+    max-width: 100%; /* Ensures it doesn't overflow */
+}
+
+.content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+header h1 {
+    color: #2c3e50;
+    font-size: 28px;
+}
+
+/* Dashboard Cards */
+.dashboard-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+    }
+    
+    .dashboard-container {
+        padding: 10px;
+    }
+}
+
+
+.active {
+    background: #34495e;
+}
+
+
+
+/* ---edit form ---- */
+
+.edit-form {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #2c3e50;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.form-group textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+/* ------- */
+
+.main-content {
+    flex: 1;
+    margin-left: 150px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: calc(100vw - 150px);
+    padding: 20px;
+    overflow-x: hidden;
+}
+
+/* ---- others ---- */
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%;
+    position: relative;
+}
+
+/* ---- button ---- */
+.btn {
+    padding: 8px 16px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.btn-edit {
+    background: #3498db;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-delete {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.8;
+    transform: translateY(-2px);
+}
+
+.btn-create {
+    background: #27ae60;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-create:hover {
+    background: #219a52;
+    transform: translateY(-2px);
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-cancel {
+    background: #95a5a6;
+    color: white;
+}
+
+
+
+/* ------panel------ */
+.view-panel {
+    position: fixed;
+    top: 0;
+    left: 150px;
+    width: calc(100% - 150px);
+    height: 100vh;
+    background: white;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    z-index: 9999; /* Ensure it's higher than other elements */
+    display: block;
+}
+
+.side-panel {
+    position: fixed;
+    top: 0;
+    left: 150px;
+    width: calc(100vw - 150px);
+    height: 100vh;
+    background: white;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    z-index: 150;
+    display: none;
+}
+
+.side-panel.active {
+    display: block; /* Show when active */
+    opacity: 1;
+}
+
+.panel-content {
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.edit-panel {
+    position: fixed;
+    top: 0;
+    left: 150px;
+    width: calc(100vw - 150px);
+    height: 100vh;
+    background: white;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    display: none;
+}
+
+.edit-panel.active {
+    display: block; /* Show when active */
+    opacity: 1;
+}
+
+.edit-panel-content {
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.edit-panel h2 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+/* -----card--- */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    gap: 10px;
+    position: relative;
+}
+
+.card-id {
+    color: #666;
+    font-size: 12px;
+    min-width: 50px;
+}
+/* make it prettier */
+
+.card-subtitle {
+    margin: 0;
+    font-size: 16px;
+    color: #2c3e50;
+    flex-grow: 1;
+}
+
+.card-tag {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    background: #e8f0fe;
+    color: #1a73e8;
+    white-space: nowrap;
+}
+
+.card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    justify-items: center;
+}
+
+.card-view {
+    width: 100%;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    overflow: auto !important; 
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+
+.card-view::-webkit-scrollbar {
+    width: 6px;
+}
+
+.card-view::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
+
+.card-view::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.card-item {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    break-inside: avoid;
+    margin-bottom: 10px;
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.card-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.card-details {
+    padding: 0 15px;
+    color: #666;
+}
+
+.card-footer {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.content-selector {
+    appearance: none;
+    padding: 10px 40px 10px 15px;
+    font-size: 14px;
+    border: 2px solid #e0e4e8;
+    border-radius: 8px;
+    background: white;
+    background-position: right 15px center;
+    cursor: pointer;
+    color: #2c3e50;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    min-width: 150px;
+}
+
+.content-selector:hover {
+    border-color: #2c3e50;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.content-selector:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.content-selector option {
+    padding: 10px;
+    font-size: 14px;
+    background: white;
+    color: #2c3e50;
+}
+
+@media (max-width: 768px) {
+    .card-list {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+.card {
+    width: 100%;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    overflow: hidden; /* Ensure content doesn't overflow */
+    display: flex;
+    flex-direction: column;
+
+}
+ 
+.recipe-details-title {
+    font-size: 18px;
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.card-title {
+    font-size: 18px;
+    color: #2c3e50;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.card-tag, .card-status {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+/* user status, recipe status */
+
+.card-tag {
+    background: #e8f0fe;
+    color: #1a73e8 !important;
+}
+/* user status, recipe status */
+
+.card-status.pending {
+    background: #ffeeba;
+    color: #856404 !important;
+}
+
+.card-status.resolved {
+    background: #d4edda;
+    color: #155724 !important;
+}
+
+.card-status.dismissed {
+    background: #b4eae9;
+    color: #045346 !important;
+}
+
+.card-subtitle {
+    font-size: 16px;
+    color: #2c3e50;
+    margin: 5px 0;
+}
+
+.card-details {
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #999;
+    margin-top: 8px;
+    align-items: center;
+}
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+    margin-left: auto; /* Push actions to right */
+}
+
+.card-list, .card-grid {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.card-list::-webkit-scrollbar,
+.card-grid::-webkit-scrollbar {
+    width: 4px;
+}
+
+.card-list::-webkit-scrollbar-track,
+.card-grid::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.card-list::-webkit-scrollbar-thumb,
+.card-grid::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    transition: background 0.3s ease;
+}
+
+.card-list::-webkit-scrollbar-thumb:hover,
+.card-grid::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* recipe card specifically */
+
+.recipe-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+}
+
+/*  ------ */
+.status-form {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.status-form select {
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 12px;
+}
+
+.profile-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 0 20px;
+}
+
+.user-header-pic {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+}
+
+.user-profile-container {
+    margin-top: -40px;
+    margin-bottom: 10px;
+    padding: 0 20px;
+}
+
+.user-profile-sidebar {
+    position: relative;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    padding: 0 20px;
+}
+
+.user-profile-pic {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid white;
+    object-fit: cover;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.card-bio {
+    padding: 0 15px;
+    margin: 10px 0;
+    font-size: 14px;
+    color: #666;
+    max-height: 60px;
+    overflow-y: auto;
+}
+
+.hidden {
+    display: none;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    margin-left: 20px; /* Adjust spacing as needed */
+    flex-grow: 1;
+}
+
+#searchBar {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    min-width: 150px; /* Adjust width as needed */
+    margin-right: 5px; /* Space between input and button */
+    margin-left: 30px;
+    flex-grow: 1;
+}
+
+#searchButton {
+    width: 30px; /* Adjust size as needed */
+    height: 30px; /* Adjust size as needed */
+    cursor: pointer;
+    border: none; /* Remove default border */
+    background: none; /* Remove default background */
+}
+
+#searchButton:hover {
+    opacity: 0.8; /* Optional: Add hover effect */
+}
+
+.btn-suspend {
+    margin-right: 30px; /* Add space to the right of the Suspend button */
+}
+
+#viewProfileCard {
+    position: relative;
+    padding: 20px;
+}
+
+#viewRecipeCard {
+    position: relative;
+    padding: 20px;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 25px;
+    background: none;
+    color: rgb(39, 39, 39) !important;
+    border: none;
+    font-size: 30px;  /* Adjust the size of the X */
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.close-button:hover {
+    color: #d33;
+}
+
+/* ---------- */
+
+.card-item-template {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    break-inside: avoid;
+    margin-bottom: 10px;
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    visibility: hidden; /* Initially hidden as template */
+}
+
+.card-item-template:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.card-item-template .recipe-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.card-item-template .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    gap: 10px;
+}
+
+.card-item-template .card-id {
+    color: #666;
+    font-size: 12px;
+    min-width: 50px;
+}
+
+.card-item-template .card-subtitle {
+    margin: 0;
+    font-size: 16px;
+    color: #2c3e50;
+    flex-grow: 1;
+}
+
+.card-item-template .card-tag {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    background: #e8f0fe;
+    color: #1a73e8;
+    white-space: nowrap;
+}
+
+.card-item-template .card-details {
+    padding: 0 15px;
+    color: #666;
+}
+
+.card-item-template .card-footer {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    color: #888;
+}
+
+.card-item-template .card-time,
+.card-item-template .card-calories,
+.card-item-template .card-cuisine {
+    font-size: 12px;
+}
+
+.card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px; /* Space between the image and content */
+}
+
+.recipeImageContainer {
+    flex-shrink: 0;
+    width: 40%; /* Adjust image width as needed */
+    aspect-ratio: 4 / 5; /* 4:5 Aspect Ratio */
+}
+
+.recipe-view-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Keeps image aspect ratio intact */
+    border-radius: 10px; /* Optional: Adds border radius for rounded corners */
+}
+
+.card-info {
+    flex: 1; /* Takes remaining space */
+}
+
+/* .card-title, .card-header, .card-footer {
+    margin-bottom: 15px;
+} */
+
+.card-details, .card-subtitle, .card-id, .card-tag {
+    font-size: 14px;
+    color: #666;
+}
+
+.card-ingredients, .card-steps {
+    margin-top: 20px;
+}
+
+.card-ingredients h5, .card-steps h5 {
+    font-size: 16px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+#ingredientsText, #stepsText {
+    font-size: 14px;
+    color: #666;
+    white-space: pre-line; /* To preserve line breaks in steps */
+}
+
+.card-content {
+    padding-bottom: 20px; /* Ensure there's spacing before the buttons */
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+}
+
+.card-content {
+    /* position: relative; Make sure card-content is positioned relatively 
+    padding-bottom: 60px; Ensure space for the action footer */
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+}
+
+.card-action-footer {
+    position: absolute;  /* Position the footer at the bottom of the content */
+    bottom: 0;
+    left: 0;
+    width: 100%;  /* Full width of the parent */
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+}
+
+.btn-suspend {
+    background-color: #1a73e8; /* Blue */
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-suspend:hover {
+    background-color: #155db3; /* Darker blue on hover */
+}
+
+.btn-delete {
+    background-color: #e74c3c; /* Red */
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px; /* Add some space between buttons */
+}
+
+.btn-delete:hover {
+    background-color: #c0392b; /* Darker red on hover */
+}
+
+/* Improve card transitions */
+.card {
+    transition: opacity 0.3s ease;
+    position: relative;
+}
+
+.comment-section {
+    border-top: 1px solid #ddd;
+    padding-top: 16px;
+    margin-top: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: 400px; /* Adjust height as needed */
+}
+
+.comment-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    color: #333;
+}
+
+.comment-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.comment-item {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.comment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.comment-user {
+    font-size: 14px;
+    color: #007bff;
+}
+
+.comment-time {
+    font-size: 12px;
+    color: #999;
+}
+
+.comment-text {
+    font-size: 14px;
+    color: #333;
+}
+
+#comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+#comment-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    resize: vertical;
+    font-size: 14px;
+    min-height: 80px;
+}
+
+.btn-submit-comment {
+    align-self: flex-end;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 10px;
+}
+
+.btn-submit-comment:hover {
+    background-color: #0056b3;
+}
+
+.section-container {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 12px;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.section-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.section-list div {
+    background-color: #ffffff;
+    padding: 8px;
+    border-radius: 6px;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+    font-size: 14px;
+}
+
+.recipeImageContainer {
+    position: relative;
+    display: inline-block;
+}
+
+.like-container {
+    position: absolute;
+    bottom: 20px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 8px 12px;
+    border-radius: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.heart-icon {
+    font-size: 24px; /* Increased size */
+    color: hsl(339, 72%, 69%);
+    cursor: pointer;
+    margin-right: 8px;
+    user-select: none;
+    transition: transform 0.2s;
+}
+
+.heart-icon.liked {
+    color: hsl(349, 81%, 51%);
+    transform: scale(1.3); /* Larger heart animation when clicked */
+}
+
+#likeCount {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.collection-container {
+    position: absolute;
+    bottom: 20px;
+    right: 90px; /* Adjusted to be next to like-container */
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 8px 12px;
+    border-radius: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.bookmark-icon {
+    font-size: 24px; /* Match heart icon size */
+    color: hsl(42, 80%, 60%);
+    cursor: pointer;
+    margin-right: 8px;
+    user-select: none;
+    transition: transform 0.2s;
+}
+
+.bookmark-icon.collected {
+    color: hsl(42, 90%, 50%);
+    transform: scale(1.3); /* Slight enlargement on click */
+}
+
+#collectionCount {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+
+
+
+/* Add this CSS to style the header */
+/* .content-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+} */
+
+.search-container {
+    position: relative;
+    flex: 1; /* Allow the search bar to take up remaining space */
+}
+
+.search-bar {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding-right: 40px; /* Add space for the search icon */
+    background-color: lightblue;
+}
+
+.search-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: #aaa;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.filter-btn, .sort-btn, .notification-btn, .profile-btn {
+    margin-left: 5px; /* Reduce space between buttons */
+    height: 40px;
+}
+
+.filter-btn, .sort-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    flex: 0 0 150px; /* Set a fixed width for the buttons */
+    background-color: lightblue;
+}
+
+.filter-icon, .sort-icon {
+    margin-left: auto; /* Push the icon to the right */
+}
+
+.notification-btn {
+    padding: 10px;
+    font-size: 16px;
+    border: none; /* Remove border */
+    background: none; /* Remove background */
+    cursor: pointer;
+}
+
+.profile-btn {
+    width: 40px; /* Set a fixed width */
+    height: 40px; /* Set a fixed height */
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 50%; /* Make the button circular */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-box {
+    display: none;
+    position: absolute;
+    top: 50px; /* Adjusted position to be below the filter button */
+    left: 0;
+    background-color: white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    z-index: 100;
+    width: 400px; /* Set a fixed width for the box */
+    }
+
+.filter-content {
+    display: flex;
+    justify-content: space-between; /* Cuisines on the left, Labels on the right */
+    gap: 20px;
+}
+
+.filter-section {
+    flex: 1; /* Each section takes up equal space */
+}
+
+.filter-section h4 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333333;
+}
+
+.filter-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.filter-section ul li {
+    margin-bottom: 8px;
+}
+
+.filter-section ul li label {
+    margin-left: 5px;
+    font-size: 14px;
+    color: #555555;
+}
+
+.collection {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 columns */
+    gap: 20px; /* Space between cards */
+    padding: 20px;
+  }
+  
+  .collection-item {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    text-align: center;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .collection-item:hover {
+    transform: translateY(-5px);
+  }
+  
+  .collection-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-bottom: 2px solid #ddd;
+  }
+  
+  .collection-item .content {
+    padding: 16px;
+  }
+
+
+
+/* Login Page Styles */
+.login-page {
+    height: 100vh;
+    background-color: #f1f1f1;
+}
+
+.login-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.login-container h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.login-container .form-group {
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.login-container .form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.login-container .form-group input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.button-login {
+    font-size: 16px;
+    font-weight: bold;
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button-login:hover {
+    background-color: #0056b3;
+}
+
+.login-container .toggle-password {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 30px;
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.login-container .closes-button {
+    position: absolute;
+    top: 6px;
+    left: 126px;
+    background: none;
+    color: rgb(39, 39, 39);
+    border: none;
+    font-size: 24px; 
+    padding: 0; 
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.login-container .closes-button:hover {
+    color: #d33;
+    transform: scale(1.1);
+}
+
+.recipe-form-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.image-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.image-container input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.recipe-form-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.image-container {
+    flex: 1.5; /* Allows it to scale dynamically */
+    min-width: 250px; /* Ensures it doesn't get too small */
+    max-width: 30%; /* Prevents it from taking too much space */
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+}
+
+
+.image-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.image-container input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.form-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 10px; /* Adds spacing between buttons */
+    width: 100%;
+    margin-top: 15px;
+}
+
+.form-buttons button {
+    width: 100%; /* Ensures buttons take full width of grid cell */
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+    background-color: #2b8f8f;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.form-buttons button:hover {
+    background-color: #217f7f;
+}
+
+.recipe-details {
+    flex: 2.5; /* Increased weight for more balance */
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    gap: 10px;
+}
+
+.recipe-details input,
+.recipe-details textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.recipe-details textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-buttons-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+
+.form-buttons button {
+    width: 100%; /* Ensures buttons take full width of grid cell */
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+    background-color: #2b8f8f;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.form-buttons button:hover {
+    background-color: #217f7f;
+}
+
+.recipe-details {
+    flex: 2; /* Takes more space than image-container */
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    gap: 10px;
+}
+
+.recipe-details input,
+.recipe-details textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.recipe-details textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-buttons-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+
+.card-title a.card-link {
+    color: inherit; /* Use the same color as surrounding text */
+    text-decoration: none; /* Remove underline */
+    font-weight: bold; /* Make it visually distinct */
+    cursor: pointer; /* Indicate it's clickable */
+}
+
+.card-title a.card-link:hover {
+    text-decoration: underline; /* Optional: Add underline only on hover */
+    color: #007bff; /* Optional: Change color on hover */
+}
+
+.form-spacing {
+    margin-bottom: 20px; /* Adjust the value as needed */
+}
+
+.card-details:empty {
+    display: none; /* Hide empty details */
+}
+
+.comment-list:empty {
+    display: none; /* Hide empty comment list */
+}
+
+.delete-comment-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.delete-comment-btn:hover {
+    background-color: #c0392b;
+}
+
+.flashes {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+
+.flashes li {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    transition: opacity 0.3s ease;
+}
+
+.flashes li.success {
+    background-color: #28a745;
+}
+
+.flashes li.error {
+    background-color: #dc3545;
+}
+
+.flashes li.warning {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.flashes li.info {
+    background-color: #17a2b8;
+}
+
+.toggle-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    gap: 10px;
+}
+
+.toggle-container button {
+    flex: 1;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    background-color: #f0f0f0;
+    transition: background-color 0.3s, color 0.3s;
+    border-radius: 20px;
+}
+
+.toggle-container button.active {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    border-bottom: 3px solid #0056b3;
+}
+
+.toggle-container button:hover {
+    background-color: #ddd;
+}
+
+
+.panel-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.panel-content h2 {
+    color: #333;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.panel-content label {
+    color: #666;
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border 0.3s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+    border-color: #007bff;
+}
+
+textarea {
+    resize: none;
+    height: 100px;
+}
+
+.edit-button {
+    background-color: lightblue;
+    border: none; /* Remove borders */
+    color: black; /* White text */
+    padding: 6px 8px; /* Some padding */
+    text-align: center; /* Center the text */
+    text-decoration: none; /* Remove underline */
+    display: inline-block; /* Make the button inline-block */
+    font-size: 12px; /* Increase font size */
+    margin: 4px 2px; /* Some margin */
+    cursor: pointer; /* Pointer/hand icon */
+    border-radius: 12px; /* Rounded corners */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.edit-button:hover {
+    background-color: darkcyan
+}
+
+.userhome .card-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* Always 5 columns */
+    gap: 20px; /* Space between cards */
+    padding: 20px;
+    justify-content: start; /* Align content to the left */
+}
+
+.userhome .card-item {
+    width: 100%;
+    max-width: 250px;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    text-align: center;
+    visibility: visible; /* Ensure they are visible */
+}
+
+/* Hide empty slots if fewer than 5 results */
+.userhome .card-item.empty {
+    visibility: hidden; /* Keeps spacing but hides content */
+}
+
+.radio-group-vertical {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    gap: 10px; /* Space between options */
+}
+
+.radio-group-vertical label {
+    display: flex;
+    align-items: center; /* Align text and radio button */
+    gap: 5px; /* Space between radio button and text */
+}
+

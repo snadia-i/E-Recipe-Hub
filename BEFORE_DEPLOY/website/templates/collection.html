@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Collections</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="container userhome"> <!-- Unified container class for consistency -->
+        
+        <!-- Sidebar -->
+        <aside class="sidebar" style="background-color: white;">
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('main') }}">🏠</a></li>
+                    <li><a href="{{ url_for('createrecipe') }}">➕</a></li>
+                    <li><a href="{{ url_for('collection') }}">❤️</a></li>
+                    {% if 'user' in session %}
+                        <li><a href="#" onclick="confirmLogout()">🚪</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('login') }}">🔑</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <div class="search-container">
+                    <input type="text" placeholder="Any cravings today?" class="search-bar" id="search-input">
+                    <button class="search-icon" id="search-button">🔍</button>
+                </div>
+                <div class="filter-container" style="position: relative; display: inline-block;">
+                    <button class="filter-btn">Filters <span class="filter-icon">🔧</span></button>
+                    <!-- Filter Box Positioned Below the Filter Button -->
+                    <div class="filter-box" id="filter-box">
+                        <div class="filter-content">
+                            <!-- Cuisines Section -->
+                            <div class="filter-section cuisines">
+                                <h4>Cuisines:</h4>
+                                <ul>
+                                    <li><input type="checkbox" id="Italian" name="cuisine" value="Italian"> <label for="Italian">Italian</label></li>
+                                    <li><input type="checkbox" id="Indian" name="cuisine" value="Indian"> <label for="Indian">Indian</label></li>
+                                    <li><input type="checkbox" id="American" name="cuisine" value="American"> <label for="American">American</label></li>
+                                    <li><input type="checkbox" id="Mexican" name="cuisine" value="Mexican"> <label for="Mexican">Mexican</label></li>
+                                    <li><input type="checkbox" id="Asian" name="cuisine" value="Asian"> <label for="Asian">Asian</label></li>
+                                    <li><input type="checkbox" id="French" name="cuisine" value="French"> <label for="French">French</label></li>
+                                </ul>
+                            </div>
+                            <!-- Labels Section -->
+                            <div class="filter-section labels">
+                                <h4>Label:</h4>
+                                <ul>
+                                    <li><input type="checkbox" id="breakfast" name="label" value="breakfast"> <label for="breakfast">breakfast</label></li>
+                                    <li><input type="checkbox" id="lunch" name="label" value="lunch"> <label for="lunch">lunch</label></li>
+                                    <li><input type="checkbox" id="dessert" name="label" value="dessert"> <label for="dessert">dessert</label></li>
+                                    <li><input type="checkbox" id="dinner" name="label" value="dinner"> <label for="dinner">dinner</label></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="sort-container" style="position: relative; display: inline-block;">
+                        <button class="sort-btn" id="sort-btn">Sort By <span class="sort-icon">⬇</span></button>
+                        <div class="sort-box" id="sort-box" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 200px;">
+                            <div class="sort-content">
+                                <h4>Sort By:</h4>
+                                <ul>
+                                    <div class="radio-group-vertical">
+                                        <label><input type="radio" name="sort" value="title"> <span>Title</span></label>
+                                        <label><input type="radio" name="sort" value="time"> <span>Time</span></label>
+                                        <label><input type="radio" name="sort" value="calories"> <span>Calories</span></label>
+                                    </div>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="position: relative; display: inline-block;">
+                        <button class="notification-btn" id="notification-btn">🔔</button>
+                        <div class="notification-box" id="notification-box" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #ddd; padding: 10px; z-index: 1000; width: 500px; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+                            <h4>Notifications</h4>
+                            <div class="card">
+                                {% if notifications %}
+                                    {% for notification in notifications %}
+                                        <div class="card-list" data-title="{{ notification['title'] | e }}" >
+                                            <div class="card-header">
+                                                <span class="card-id">#{{ notification['notiID'] }}</span>
+                                                <h4 class="card-subtitle">{{ notification['notiTitle'] }}</h4>
+                                            </div>
+                                            <p class="card-details">{{ notification['notiDetails'] }}</p>
+                                            <div class="card-footer">
+                                                <span class="card-time">{{ notification['notiTime'] }}</span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No new notifications</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                <a href="{{ url_for('profile') }}"> <button class="profile-btn">👤</button> </a>
+            </header>
+
+            <h1>Saved Collections</h1>
+                <section class="collections-container">
+                    <div class="card-container">
+                        {% if collections %}
+                            {% for collection in collections %}
+                                <div class="card-item" data-title="{{ collection['collectionID'] }}">
+                                    <img src="{{ collection['collectionPic'] }}" alt="{{ collection['collectionName'] }}">
+                                    <p>{{ collection['collectionName'] }} <span>{{ collection['collectionSize'] }} recipes</span></p>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <div class="card-item create-new" onclick="createNewCollection()">
+                            <p>+ Create New Collection</p>
+                        </div>
+
+                        <div class="card-item create-new-form hidden" id="createNewCollectionForm">
+                            <input type="text" id="newCollectionName" placeholder="Collection Name" required>
+                            <button onclick="createCollection()">Create</button>
+                            <button onclick="cancelCreateCollection()">Cancel</button>
+                        </div>
+                    </div>
+                </section>
+
+                <div id="viewProfileRecipesGrid" class="card hidden"></div>
+
+        </main>
+    </div>
+
+    <script>
+
+        function confirmLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                window.location.href = "/logout";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Delegate clicks to card items for viewing collections
+            document.querySelector('.card-container').addEventListener('click', (event) => {
+                const cardItem = event.target.closest('.card-item');
+                if (cardItem && cardItem.dataset.title) {
+                    const collectionID = cardItem.dataset.title;
+                    viewCollection(collectionID);
+                }
+            });
+        });
+
+        function viewCollection(collectionID) {
+            const recipesGrid = document.getElementById('viewProfileRecipesGrid');
+            const collectionsContainer = document.querySelector('.collections-container');
+
+            // Hide collections and ensure grid visibility
+            collectionsContainer.classList.add('hidden');
+            recipesGrid.classList.remove('hidden');
+            recipesGrid.innerHTML = ''; // Clear previous recipes
+
+            // Create and insert title
+            const title = document.createElement('h3');
+            title.className = 'card-title';
+            title.textContent = 'Saved Recipes in Collection';
+            recipesGrid.appendChild(title);
+
+            // Create and insert the close button
+            const closeButton = document.createElement('button');
+            closeButton.className = 'close-button';
+            closeButton.textContent = 'x';
+            closeButton.onclick = closeViewCollection;
+            recipesGrid.appendChild(closeButton);
+
+            // Create container for cards to ensure separation between elements
+            const recipeCardsContainer = document.createElement('div');
+            recipeCardsContainer.className = 'recipe-cards-container';
+            recipesGrid.appendChild(recipeCardsContainer);
+
+            // Fetch and display recipes
+            fetch(`/collection/${collectionID}/recipes`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.recipes && data.recipes.length > 0) {
+                        data.recipes.forEach(recipe => {
+                            const recipeCard = document.createElement('div');
+                            recipeCard.className = 'card-item';
+                            recipeCard.innerHTML = `
+                                <img src="${recipe.recipePic}" alt="${recipe.recipeTitle}" class="recipe-image">
+                                <h4>${recipe.recipeTitle}</h4>
+                                <p>${recipe.recipeDescription}</p>
+                            `;
+                            recipeCardsContainer.appendChild(recipeCard);
+                        });
+                    } else {
+                        const noRecipesMessage = document.createElement('p');
+                        noRecipesMessage.textContent = 'No recipes found in this collection.';
+                        recipeCardsContainer.appendChild(noRecipesMessage);
+                    }
+                })
+                .catch(() => {
+                    const errorMessage = document.createElement('p');
+                    errorMessage.textContent = 'Error fetching recipes.';
+                    recipeCardsContainer.appendChild(errorMessage);
+                });
+        }
+
+        function closeViewCollection() {
+            const collectionsContainer = document.querySelector('.collections-container');
+            const recipesGrid = document.getElementById('viewProfileRecipesGrid');
+
+            // Clear previous recipes and reset state
+            recipesGrid.innerHTML = '';  // Clear all child elements
+            recipesGrid.classList.add('hidden');  // Hide the grid
+            collectionsContainer.classList.remove('hidden');  // Show collections
+        }
+
+
+        function createCollection() {
+            console.log('createCollection() triggered'); // Debug logging
+            const collectionName = document.getElementById('newCollectionName').value.trim();
+            
+            if (!collectionName) {
+                alert('Collection name is required.');
+                return;
+            }
+
+            fetch('/collection/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ collectionName: collectionName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Collection created successfully') {
+                    alert('Collection created successfully!');
+                    location.reload();
+                } else {
+                    alert(data.error || 'Error creating collection');
+                }
+            })
+            .catch(() => {
+                alert('Network error while creating collection.');
+            });
+        }
+
+        function createNewCollection() {
+            console.log('Opening form...');
+            document.getElementById('createNewCollectionForm').classList.remove('hidden');
+        }
+
+        function cancelCreateCollection() {
+            document.getElementById('createNewCollectionForm').classList.add('hidden');
+            document.getElementById('newCollectionName').value = '';
+        }
+
+
+
+        // Toggle the filter box
+        document.querySelector('.filter-btn').addEventListener('click', function () {
+            const filterBox = document.getElementById('filter-box');
+            filterBox.style.display = filterBox.style.display === 'none' || !filterBox.style.display ? 'block' : 'none';
+        });
+
+        // Close filter box when clicking outside
+        document.addEventListener('click', function (event) {
+            const filterBox = document.getElementById('filter-box');
+            const filterButton = document.querySelector('.filter-btn');
+            if (filterBox.style.display === 'block' && !filterBox.contains(event.target) && event.target !== filterButton) {
+                filterBox.style.display = 'none';
+            }
+        });
+
+        document.getElementById('sort-btn').addEventListener('click', function () {
+            const sortBox = document.getElementById('sort-box');
+            sortBox.style.display = sortBox.style.display === 'none' || !sortBox.style.display ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', function (event) {
+            const sortBox = document.getElementById('sort-box');
+            const sortButton = document.getElementById('sort-btn');
+            if (sortBox.style.display === 'block' && !sortBox.contains(event.target) && event.target !== sortButton) {
+                sortBox.style.display = 'none';
+            }
+        });
+
+        const notificationBtn = document.getElementById('notification-btn');
+        const notificationBox = document.getElementById('notification-box');
+
+        notificationBtn.addEventListener('click', () => {
+            notificationBox.style.display = notificationBox.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!notificationBox.contains(event.target) && event.target !== notificationBtn) {
+                notificationBox.style.display = 'none';
+            }
+        });
+
+
+        function addRecipeToCollection(collectionID, recipeID) {
+            fetch('/add_to_collection', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ collectionID: collectionID, recipeID: recipeID })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.success || data.error))
+            .catch(error => console.error('Error:', error));
+        }
+
+
+    </script>
+</body>
+</html>

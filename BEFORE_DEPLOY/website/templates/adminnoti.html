@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Notifications</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('adminhome') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('notifications') }}" class="active">Notifications</a></li>
+                    <li><a href="{{ url_for('reports') }}">Reports</a></li>
+                    <li><a href="{{ url_for('manage') }}">Manage</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="main-content">
+    <div class="content-header">
+        <h1>Notifications & Newsletter</h1>
+        <button onclick="openCreatePanel()" class="btn btn-create">Create Notification or Newsletter</button>
+    </div>
+        <div class="card">
+            <h3 class="card-title">All Notifications</h3>
+            <div class="card-list">
+                {% if notifications %}
+                    {% for notification in notifications %}
+                    <div class="card-item">
+                        <div class="card-header">
+                            <span class="card-id">#{{ notification['notiID'] }}</span>
+                            <h4 class="card-subtitle">{{ notification['notiTitle'] }}</h4>
+                            <span class="card-tag">{{ notification['notiReceiver'] }}</span>
+                        </div>
+                        <p class="card-details">{{ notification['notiDetails'] }}</p>
+                        <div class="card-footer">
+                            <span class="card-time">{{ notification['notiTime'] }}</span>
+                            <div class="card-actions">
+                                <button onclick="openEditPanel('{{ notification.notiID }}')" class="btn btn-edit">Edit</button>
+                                <form action="{{ url_for('delete_notification', id=notification.notiID) }}" method="POST" style="display: inline;">
+                                    <button type="submit" class="btn btn-delete">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No notifications available</p>
+                {% endif %}
+            </div>
+        </div>
+                <!-- Create Panel -->
+                <div id="createPanel" class="side-panel">
+                    <div class="panel-content">
+                        <h2>Create New Notification</h2>
+                        <form id="createForm" action="{{ url_for('create_notification') }}" method="POST">
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Details</label>
+                                <textarea name="details" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Receiver</label>
+                                <select class="content-selector" name="receiver" required>
+                                    <option value="" disabled selected>Select Receiver Type</option>
+                                    <option value="free">Free</option>
+                                    <option value="premium">Premium</option>
+                                </select>
+                            </div>
+                            <div class="button-group">
+                                <button type="submit" class="btn btn-create">Create</button>
+                                <button type="button" class="btn btn-cancel" onclick="closeCreatePanel()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            <!-- Edit Panel -->
+            <div id="editPanel" class="edit-panel">
+                <div class="edit-panel-content">
+                    <h2>Edit Notification</h2>
+                    <form id="editForm" method="POST">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" name="title" id="editTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Details</label>
+                            <textarea name="details" id="editDetails" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Receiver</label>
+                            <select class="content-selector" name="receiver" required>
+                                <option value="" disabled selected>Select Receiver Type</option>
+                                <option value="free">Free</option>
+                                <option value="premium">Premium</option>
+                        </select>
+                        </div>
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-edit">Update</button>
+                            <button type="button" class="btn btn-cancel" onclick="closeEditPanel()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+
+        function openEditPanel(notiId) {
+                const panel = document.getElementById('editPanel');
+                panel.classList.add('active');
+                
+                // Update form action URL
+                const form = document.getElementById('editForm');
+                form.action = `/notification/edit/${notiId}`;
+                
+                // Get notification data and populate form
+                fetch(`/notification/${notiId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('editTitle').value = data.title;
+                        document.getElementById('editDetails').value = data.details;
+                        document.getElementById('editReceiver').value = data.receiver;
+                    });
+            }
+
+        function closeEditPanel() {
+            const panel = document.getElementById('editPanel');
+            panel.classList.remove('active');
+        }
+
+
+        // Add these functions to existing script
+        function openCreatePanel() {
+            document.getElementById('createPanel').classList.add('active');
+        }
+
+        function closeCreatePanel() {
+            document.getElementById('createPanel').classList.remove('active');
+        } 
+
+        // Wait for the DOM to load before attaching event listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            // Confirmation for creating notification
+            document.getElementById('createForm').addEventListener('submit', function (event) {
+                if (!confirm("Are you sure you want to create this notification?")) {
+                    event.preventDefault();
+                }
+            });
+
+            // Confirmation for updating notification
+            document.getElementById('editForm').addEventListener('submit', function (event) {
+                if (!confirm("Are you sure you want to update this notification?")) {
+                    event.preventDefault();
+                }
+            });
+
+            // Confirmation for deleting notification
+            document.querySelectorAll('.card-actions form').forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!confirm("Are you sure you want to delete this notification? This action cannot be undone.")) {
+                        event.preventDefault();
+                    }
+                });
+            });
+
+        });
+
+
+
+    </script>   
+
+</body>
+</html>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='cake.png') }}" type="image/x-icon">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('adminhome') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('notifications') }}">Notifications</a></li>
+                    <li><a href="{{ url_for('reports') }}">Reports</a></li>
+                    <li><a href="{{ url_for('manage') }}" class="active">Manage</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <header class="content-header">
+                <h1>Manage Users & Recipes</h1>
+                <div class="search-section">
+                    <input type="text" id="searchBar" placeholder="Search..." onkeyup="filterContent()">
+                    <img id="searchButton" src="https://i.pinimg.com/736x/36/16/e3/3616e36e83edc6b2404204491ceb1c77.jpg" alt="Search" onclick="filterContent()">
+                    <select id="contentSelector" class="content-selector" onchange="toggleContent()">
+                        <option value="all">Show All</option>
+                        <option value="users">Show Users</option>
+                        <option value="recipes">Show Recipes</option>
+                    </select>
+                </div>
+            </header>
+
+            <section class="dashboard-content">
+                <!-- Users Card -->
+                <div class="card" id="usersCard">
+                    <h3 class="card-title">Registered Users</h3>
+                    <div class="card-grid" id="usersGrid">
+                        {% if users %}
+                            {% for user in users %}
+                                <div class="card-item" data-name="{{ user['userName'] | e }}" onclick="viewUserProfile('{{ user.userID }}')">
+                                    <img src="{{ user['userHeaderPic'] | e }}" alt="Header" class="user-header-pic">
+                                    <div class="user-profile-container">
+                                        <img src="{{ user['userProfilePic'] | e }}" alt="Profile" class="user-profile-pic">
+                                    </div>
+                                    <div class="card-header">
+                                        <span class="card-id">#{{ user['userID'] | e }}</span>
+                                        <h4 class="card-subtitle">{{ user['userName'] }}</h4>
+                                        <span class="card-tag {{ user['userStatus'] | e }}">{{ user['userStatus'] }}</span>
+                                    </div>
+                                    <p class="card-bio">{{ user['userBio'] | e }}</p>
+                                    <p class="card-details">{{ user['userEmail'] | e }}</p>
+                                    <div class="card-footer">
+                                        <span class="card-package">{{ user['userPackage'] | e }}</span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No users available</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Recipes Card -->
+                <div class="card" id="recipesCard">
+                    <h3 class="card-title">Published Recipes</h3>
+                    <div class="card-grid" id="recipesGrid">
+                        {% if recipes %}
+                            {% for recipe in recipes %}
+                                <div class="card-item" data-title="{{ recipe['recipeTitle'] | e }}" onclick="viewRecipeDetails('{{ recipe.recipeID }}')">
+                                    <img src="{{ recipe['recipePic'] | e }}" alt="{{ recipe['recipeTitle'] | e }}" class="recipe-image">
+                                    <div class="card-header">
+                                        <span class="card-id">#{{ recipe['recipeID'] | e }}</span>
+                                        <h4 class="card-subtitle">{{ recipe['recipeTitle'] | e }}</h4>
+                                        <span class="card-tag {{ recipe['recipeStatus'] | e }}">{{ recipe['recipeStatus'] | e }}</span>
+                                    </div>
+                                    <div class="card-details">{{ recipe['recipeDescription'] | e }}</div>
+                                    <div class="card-footer">
+                                        <span class="card-time">{{ recipe['recipeTime'] | e }} mins</span>
+                                        <span class="card-calories">{{ recipe['recipeCalories'] | e }} cal</span>
+                                        <span class="card-cuisine">{{ recipe['recipeCuisine'] | e }}</span>
+                                    </div>
+                                </div> 
+                            {% endfor %}
+                        {% else %}
+                            <p>No recipes available</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                 <!-- View Recipes Card -->
+                 <div class="card-view hidden" id="viewRecipeCard">
+                    <h3 class="card-title">View Recipe</h3>
+                    <button class="close-button" onclick="closeRecipeDetails()"> x </button>
+                    <div class="card-content">
+                        <div class="recipeImageContainer">
+                            <img id="recipeHeaderPic" class="recipe-view-image" alt="Recipe Image">
+                            <div class="like-container">
+                                <span class="heart-icon" >&hearts;</span>
+                                <span id="likeCount">0</span>
+                            </div>
+                        </div>
+                        <div class="card-info">
+                            <div class="card-header">
+                                <span id="recipeId" class="card-id"></span>
+                                <h4 id="recipeTitle" class="card-subtitle"></h4>
+                                <span id="recipeStatus" class="card-tag"></span>
+                                <span id="userId" class="card-tag"></span>
+                            </div>
+                            <div id="recipeDescription" class="card-details"></div>
+                            <div class="card-footer">
+                                <span id="recipeTime" class="card-time"></span>
+                                <span id="recipeCalories" class="card-calories"></span>
+                                <span id="recipeCuisine" class="card-cuisine"></span>
+                                <span id="recipeLabel" class="card-label"></span>
+                            </div>
+                            <div id="recipeIngredients" class="card-details"></div>
+                            <div id="recipeSteps" class="card-details"></div>
+                            <div id="recipeCommentsContainer" class="card-details comment-section">
+                                <h4 class="comment-title">Comments</h4>
+                                <div id="recipeComments" class="comment-list"></div>
+                            </div>                            
+                            <div class="card-footer card-action-footer">
+                                <form id="recipeStatusUpdateForm" action="" method="POST">
+                                    <button type="button" id="recipeStatusButton" class="btn-suspend" onclick="updateRecipeStatus()">
+                                        Suspend
+                                    </button>
+                                </form>
+                                <button class="btn-delete" id="deleteButton" onclick="deleteRecipe()">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                                
+                <!-- View Profile Card -->
+                <div class="card-view hidden" id="viewProfileCard">
+                    <h3 class="card-title">View User Profile</h3>
+                    <button class="close-button" onclick="closeUserProfile()"> x </button>
+                    <img id="profileHeaderPic" class="user-header-pic" alt="Header Picture">
+                    <div class="user-profile-container">
+                        <img id="profileProfilePic" class="user-profile-pic" alt="Profile Picture">
+                    </div>
+                    <div class="card-header">
+                        <span id="profileId" class="card-id"></span>
+                        <h4 id="profileName" class="card-subtitle"></h4>
+                        <span id="profileStatus" class="card-tag"></span>
+                    </div>
+                    <p id="profileBio" class="card-bio"></p>
+                    <p id="profileEmail" class="card-details"></p>
+                    <div class="card-footer">
+                        <span id="profilePackage" class="card-package"></span>
+                    </div>
+                    <div class="card-grid" id="viewProfileRecipesGrid">
+                    </div>
+                    <div class="card-footer card-action-footer">
+                        <form id="statusUpdateForm" action="" method="POST">
+                            <input type="hidden" name="status" id="statusInput" value="active">
+                            <button type="button" id="statusButton" class="btn-suspend" onclick="updateUserStatus()">
+                                Suspend
+                            </button>
+                        </form>
+                        <button class="btn-delete" id="deleteButton" onclick="deleteUser()">Delete</button>
+                    </div>
+                </div>                               
+
+            </section>
+        </main>
+    </div>
+
+
+
+    <script>
+        function toggleContent(forceShow) {
+            const selector = document.getElementById('contentSelector');
+            const showUsers = forceShow ? true : (selector.value === 'users' || selector.value === 'all');
+            const showRecipes = forceShow ? true : (selector.value === 'recipes' || selector.value === 'all');
+            
+            document.getElementById('usersCard').classList.toggle('hidden', !showUsers);
+            document.getElementById('recipesCard').classList.toggle('hidden', !showRecipes);
+        }
+
+        function filterContent() {
+            const searchInput = document.getElementById('searchBar').value.toLowerCase();
+            const userItems = document.getElementById('usersGrid').getElementsByClassName('card-item');
+            const recipeItems = document.getElementById('recipesGrid').getElementsByClassName('card-item');
+
+            Array.from(userItems).forEach(item => {
+                item.style.display = item.getAttribute('data-name').toLowerCase().includes(searchInput) ? '' : 'none';
+            });
+
+            Array.from(recipeItems).forEach(item => {
+                item.style.display = item.getAttribute('data-title').toLowerCase().includes(searchInput) ? '' : 'none';
+            });
+        }
+
+        function viewUserProfile(userId) {
+            document.getElementById('usersCard').classList.add('hidden');
+            document.getElementById('recipesCard').classList.add('hidden');
+            const viewProfileCard = document.getElementById('viewProfileCard');
+            viewProfileCard.classList.remove('hidden');
+            fetch(`/user/${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('profileId').innerText = `#${data.userID}`;
+                    document.getElementById('profileName').innerText = data.userName;
+                    document.getElementById('profileEmail').innerText = data.userEmail;
+                    document.getElementById('profileBio').innerText = data.userBio;
+                    document.getElementById('profileStatus').innerText = data.userStatus;
+                    document.getElementById('profilePackage').innerText = data.userPackage;
+                    document.getElementById('profileHeaderPic').src = data.userHeaderPic;
+                    document.getElementById('profileProfilePic').src = data.userProfilePic;
+                })
+                .catch(() => {
+                    viewProfileCard.innerHTML = '<p>Error fetching user details.</p>';
+                });
+            fetch(`/user/${userId}/recipes`)
+                .then(response => response.json())
+                 .then(data => {
+                    const recipesGrid = document.getElementById('viewProfileRecipesGrid');
+                    recipesGrid.innerHTML = ''; // Clear previous recipes
+
+                    if (data.recipes && data.recipes.length > 0) {
+                        data.recipes.forEach(recipe => {
+                            const recipeCard = document.createElement('div');
+                            recipeCard.className = 'card-item';
+                            recipeCard.setAttribute('data-title', recipe.recipeTitle);
+                            recipeCard.onclick = () => viewRecipeDetails(recipe.recipeID);
+                            recipeCard.innerHTML = `
+                                <img src="${recipe.recipePic}" alt="${recipe.recipeTitle}" class="recipe-image">
+                                <div class="card-header">
+                                    <span class="card-id">#${recipe.recipeID}</span>
+                                    <h4 class="card-subtitle">${recipe.recipeTitle}</h4>
+                                    <span class="card-tag ${recipe.recipeStatus}">${recipe.recipeStatus}</span>
+                                </div>
+                                <div class="card-details">${recipe.recipeDescription}</div>
+                                <div class="card-footer">
+                                    <span class="card-time">${recipe.recipeTime} mins</span>
+                                    <span class="card-calories">${recipe.recipeCalories} cal</span>
+                                    <span class="card-cuisine">${recipe.recipeCuisine}</span>
+                                </div>
+                            `;
+                            recipesGrid.appendChild(recipeCard);
+                        });
+                    } 
+                })
+                .catch(() => {
+                    console.error('Error fetching data');
+                    const recipesGrid = document.getElementById('viewProfileRecipesGrid');
+                    recipesGrid.innerHTML = '<p>Error fetching user recipes.</p>';
+                });
+            document.getElementById('usersCard').classList.add('hidden');
+            document.getElementById('recipesCard').classList.add('hidden');
+        }
+
+        function viewRecipeDetails(recipeId) {
+            fetchAndDisplayComments(recipeId);
+            // Hide all other cards
+            document.getElementById('usersCard').classList.add('hidden');
+            document.getElementById('recipesCard').classList.add('hidden');
+            document.getElementById('viewProfileCard').classList.add('hidden');
+            
+            const viewRecipeCard = document.getElementById('viewRecipeCard');
+            viewRecipeCard.classList.remove('hidden');
+            fetch(`admin/recipe/${recipeId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('recipeId').innerText = `#${data.recipeID}`;
+                    document.getElementById('recipeTitle').innerText = data.recipeTitle;
+                    document.getElementById('recipeDescription').innerText = data.recipeDescription;
+                    document.getElementById('recipeStatus').innerText = data.recipeStatus;
+                    document.getElementById('recipeTime').innerText = `${data.recipeTime} mins`;
+                    document.getElementById('recipeCalories').innerText = `${data.recipeCalories} cal`;
+                    document.getElementById('recipeCuisine').innerText = data.recipeCuisine;
+                    document.getElementById('recipeHeaderPic').src = data.recipePic;
+                    document.getElementById('recipeIngredients').innerText = `Ingredients: \n${data.recipeIngredients}`;
+                    document.getElementById('recipeSteps').innerText = `Steps: \n${data.recipeSteps}`;
+                    document.getElementById('recipeLabel').innerText = data.recipeLabel;
+                    document.getElementById('userId').innerText = `User ID: ${data.userID}`;
+
+                    // Set the like count
+                    const likeCount = data.likeCount || 0; // Default to 0 if likeCount is undefined
+                    document.getElementById('likeCount').innerText = likeCount;
+                })
+                .catch(() => {
+                    viewRecipeCard.innerHTML = '<p>Error fetching recipe details.</p>';
+                });
+                document.getElementById('usersCard').classList.add('hidden');
+                document.getElementById('recipesCard').classList.add('hidden');
+        }
+
+        function fetchAndDisplayComments(recipeId) {
+            const commentsContainer = document.getElementById('recipeComments');
+            commentsContainer.innerHTML = ''; // Clear previous comments
+            
+            fetch(`/recipe/${recipeId}/comments`)
+                .then(response => response.json())
+                .then(data => {
+                    const comments = data.comments;
+                    if (comments.length === 0) {
+                        commentsContainer.innerHTML = '<p>No comments available.</p>';
+                    } else {
+                        comments.forEach(comment => {
+                            const commentElement = document.createElement('div');
+                            commentElement.classList.add('comment-item');
+                            commentElement.innerHTML = `
+                                <p><strong>User:</strong> ${comment.userName || 'Anonymous'}</p>
+                                <p><strong>Comment:</strong> ${comment.commentText}</p>
+                                <p><em>Posted on: ${new Date(comment.commentTime).toLocaleString()}</em></p>
+                            `;
+                            commentsContainer.appendChild(commentElement);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching comments:', error);
+                    commentsContainer.innerHTML = '<p>Error loading comments.</p>';
+                });
+        }
+
+        function closeUserProfile() {
+            document.getElementById('viewProfileCard').classList.add('hidden');
+            toggleContent(true);
+        }
+
+        function closeRecipeDetails() {
+            document.getElementById('viewRecipeCard').classList.add('hidden');
+            toggleContent(true);
+        }
+
+        function updateUserStatus() {
+            const userId = document.getElementById('profileId').innerText.replace('#', '');
+            const currentStatusElement = document.getElementById('profileStatus');
+            const currentStatus = currentStatusElement.innerText.toLowerCase();
+
+            const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+            const formAction = `/user/update_status/${userId}`;
+
+            if (confirm(`Are you sure you want to change the user status to '${newStatus}'?`)) {
+                fetch(formAction, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `status=${encodeURIComponent(newStatus)}`
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error("Failed to update user status");
+
+                        currentStatusElement.innerText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                        currentStatusElement.className = `card-tag ${newStatus}`;
+                        updateButtonLabel(newStatus);
+
+                        alert("User status updated successfully");
+                    })
+                    .catch(error => {
+                        alert(`Error: ${error.message}`);
+                    });
+            }
+        }
+
+        function updateButtonLabel(status) {
+            const statusButton = document.getElementById("statusButton");
+            statusButton.textContent = status === "suspended" ? "Unsuspend" : "Suspend";
+        }
+
+        function updateRecipeStatus() {
+            const recipeId = document.getElementById('recipeId').innerText.replace('#', '');
+            const currentStatusElement = document.getElementById('recipeStatus');
+            const currentStatus = currentStatusElement.innerText.toLowerCase();
+
+            const newStatus = currentStatus === 'published' ? 'suspended' : 'published';
+            const formAction = `/recipe/update_status/${recipeId}`;
+
+            if (confirm(`Are you sure you want to change the recipe status to '${newStatus}'?`)) {
+                fetch(formAction, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `status=${encodeURIComponent(newStatus)}`
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error("Failed to update recipe status");
+
+                    currentStatusElement.innerText = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                    currentStatusElement.className = `card-tag ${newStatus}`;
+                    updateRecipeButtonLabel(newStatus);
+
+                    alert("Recipe status updated successfully");
+                })
+                .catch(error => {
+                    alert(`Error: ${error.message}`);
+                });
+            }
+        }
+
+        function updateRecipeButtonLabel(status) {
+            const recipeStatusButton = document.getElementById("recipeStatusButton");
+            recipeStatusButton.textContent = status === "suspended" ? "Unsuspend" : "Suspend";
+        }
+        
+        function deleteUser() {
+            const userId = document.getElementById('profileId').innerText.replace('#', '');
+            const deleteUrl = `/user/delete/${userId}`;
+
+            if (confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
+                fetch(deleteUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error("Failed to delete user");
+                    alert("User deleted successfully");
+                    // Redirect or update UI after successful deletion
+                })
+                .catch(error => {
+                    alert(`Error: ${error.message}`);
+                });
+            }
+        }
+
+        function deleteRecipe() {
+            const recipeId = document.getElementById('recipeId').innerText.replace('#', '');
+            const deleteUrl = `/recipe/delete/${recipeId}`;
+
+            if (confirm("Are you sure you want to delete this recipe? This action cannot be undone.")) {
+                fetch(deleteUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error("Failed to delete recipe");
+
+                    alert("Recipe deleted successfully");
+                    // Optionally, redirect or update the UI to reflect the deletion
+                    location.reload(); // Reloads page to update the recipe list
+                })
+                .catch(error => {
+                    alert(`Error: ${error.message}`);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
