@@ -2,6 +2,13 @@
 
 A Vercel-ready Flask version of E-Recipe Hub that preserves the original UI.
 
+## Attribution
+
+This project was originally developed by @saraemyg, @NisaaaNabilah, @syahafiza, and i, and imported from https://github.com/saraemyg/E-Recipe-Hub-Web-Application.
+
+This version was adapted by me for Vercel deployment, PostgreSQL, Vercel Blob,
+backend restructuring, and security improvements.
+
 ## Local run
 
 ```bash
